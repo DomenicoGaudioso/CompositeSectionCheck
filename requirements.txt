@@ -5,6 +5,7 @@ plotly
 streamlit_toggle
 streamlit_option_menu
 pyvista
+scipy==1.11.1
 stpyvista>=0.0.18
 trame
 trame-client
