@@ -1,11 +1,11 @@
 import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
-#import matplotlib.pyplot as plt
-#from shapely.geometry import Polygon
-#from scipy.spatial import ConvexHull
+import matplotlib.pyplot as plt
+from shapely.geometry import Polygon
+from scipy.spatial import ConvexHull
 from SGMPy_material import *
-#import plotly.graph_objs as go
+import plotly.graph_objs as go
 
 # Funzione per verificare se una lista è annidata
 def is_lista_annidata(lista):
@@ -175,8 +175,12 @@ def propCalc(coordinates):
         momento_inerzia_y += (x1**2 + x1 * x2 + x2**2) * prodotto
         
     area /= 2
-    x_baricentro /= (6 * area)
-    y_baricentro /= (6 * area)
+    try:
+        x_baricentro /= (6 * area)
+        y_baricentro /= (6 * area)
+    except: #serve per quando i punti hanno coordinata 0
+        x_baricentro = 0.0 
+        y_baricentro = 0.0
 
     
     # Calcola il momento d'inerzia rispetto all'asse zero

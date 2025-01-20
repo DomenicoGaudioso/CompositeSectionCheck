@@ -2,12 +2,13 @@ import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
 import streamlit as st
-#import matplotlib.pyplot as plt
-#from shapely.geometry import Polygon
-#from scipy.spatial import ConvexHull
+import matplotlib.pyplot as plt
+from shapely.geometry import Polygon
+from scipy.spatial import ConvexHull
 from SGMPy_material import *
 from SGMPy_section_v01 import *
-#import plotly.graph_objects as go
+import plotly.graph_objs as go
+
 
 input_data = {}  
 
@@ -34,44 +35,97 @@ def combinazione(Sollecitazioni):
    # Nslu_pos = (gamma.loc['g1', 'A1_sfav'] * Sollecitazioni['G2+']['N'] + 
    #            + gamma.loc['g2', 'A1_sfav'] * Sollecitazioni['G2+']['N']) 
 
-   
-   
-   
    return
 
+
+## START --> Sollecitazioni
+# Convert dictionary to DataFrame
+df = pd.DataFrame(Sollecitazioni).T.reset_index()
+df.rename(columns={'index': 'Tipo'}, inplace=True)
+
+# Editable table using st.data_editor
+st.title("Edit Sollecitazioni")
+st.write("Modify the values in the table below:")
+
+# Display the editable data table
+edited_df = st.data_editor(
+    df,
+    use_container_width=True,
+    num_rows="dynamic",  # Allow adding/removing rows
+)
+
+# Save changes and convert back to dictionary
+updated_dict = edited_df.set_index('Tipo').T.to_dict()
+st.json(updated_dict, expanded=False)
 
 combinazione(Sollecitazioni)
 
 
-input_data[1] = { 'l': 12*1000, 
-                 "steelSection":{"sectA":
-                    {"bPsup": 300, 'tPsup': 20, 
-                     "brPsup": 0, 'trPsup': 0, 
-                     "ha": 360, "ta": 10,
-                     "brPinf": 0, 'trPinf': 0,
-                     "bPinf": 350, 'tPinf': 20
-                     },
-                    }, "slab": {"hc": 240, "D_bar": 16, "int_bar": 100},
-                    }
+input_section = { 'l': [12*1000], #lunghezza del concio
+                 
+                  "bPsup": [300], #larghezza piattabanda superiore
+                  'tPsup': [20], #spessore piattabanda superiore
+                  "brPsup": [0], # larghezza raddoppio piattabanda superiore
+                  'trPsup': [0], #spessore raddoppio piattabanda superiore
+                  "ha": [360], #altezza anima
+                  "ta": [10], #spessore anima
+                  "brPinf": [0], #larghezza raddoppio piattabanda inferiore
+                  'trPinf': [0], #spessore raddoppio piattabanda inferiore
+                  "bPinf": [350], #larghezza piattabanda inferiore
+                  'tPinf': [20], #spessore piattabanda inferiore
+
+                  "hcls": [190],
+                  "h_predalle": [50],
+                  "Bcls": [1000],
+
+                  "D_bar": [16], 
+                  "int_bar": [100]}
+
+# Convert dictionary to DataFrame
+df_section = pd.DataFrame.from_dict(input_section, orient = "index") #.reset_index()
+
+
+# Editable table using st.data_editor
+st.title("Edit Sezione")
+st.write("Modify the values in the table below:")
+
+# Display the editable data table
+edited_df = st.data_editor(
+    df_section,
+    use_container_width=True,
+    num_rows="dynamic",  # Allow adding/removing rows
+)
+
+# convert back to dictionary
+updated_dict = edited_df.to_dict()
+st.json(updated_dict, expanded=False)
+
+
 
 ##INPUT
-#soletta
-Hcls = 190
-Bcls = 1000
-hpredall = 50
-bf = 300
-tbf = 20
-bf_r = 0 #bf
-tbrf = 0
-hw = 360
-rbf_inf = 0
-rtbf_inf = 0
-binf = 350
-tbf_inf = 20
-tw = 10
+# Extract updated values from the table
+Hcls = float(edited_df.loc["hcls"][0])
+Bcls = float(edited_df.loc['Bcls'][0])
+hpredall = float(edited_df.loc['h_predalle'][0])
+
+bf = float(edited_df.loc['bPsup'][0])
+tbf = float(edited_df.loc['tPsup'][0])
+
+bf_r = float(edited_df.loc['brPsup'][0])
+tbrf = float(edited_df.loc['trPsup'][0])
+
+hw = float(edited_df.loc['ha'][0])
+tw = float(edited_df.loc['ta'][0])
+
+rbf_inf = float(edited_df.loc['brPinf'][0])
+rtbf_inf = float(edited_df.loc['trPinf'][0])
+
+binf = float(edited_df.loc['bPinf'][0])
+tbf_inf = float(edited_df.loc['tPinf'][0])
 
 
-## SOLETTA IN CALCESTRUZZO
+
+## COSTRUZIONE SOLETTA IN CALCESTRUZZO
 clsSection = RectangularSection(Bcls, Hcls, [0, 0], material="C25/30")
 p = 100 # passo bar
 pointG0 = [[-p*i, 35] for i in range(0, int(Bcls*0.5/100))] + [[p*i, 35] for i in range(1, int(Bcls*0.5/100))]
@@ -83,16 +137,32 @@ b1 = renforcementBar(12, pointG1)
 #cplot.show()
 
 
-## SEZIONE IN ACCIAIO 
+## COSTRUZIONE SEZIONE IN ACCIAIO 
 gapCls = hpredall+Hcls
 PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material="S355")
-#rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material="S355")
+rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material="S355")
 #vribs1 = V_rib(283, 300, 25, 6, [0, 70+16]) #cl4Dict={"Binst":75, "Be1":60}
 wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material="S355", cl4Dict=None)
-#rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material="S355")
+rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material="S355")
 PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material="S355")
-listDict = [PlateSup, wPlate1, PlateInf]
-#listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
+
+# if tbf == 0 or tw == 0 or tbf_inf == 0:
+#    st.warning("parametri essenziali non settati")
+
+# if tbrf == 0 and rtbf_inf == 0:
+#    listDict = [PlateSup, wPlate1, PlateInf]
+
+# elif tbrf == 0 and rtbf_inf != 0:
+#    listDict = [PlateSup, wPlate1, rPlateInf, PlateInf]
+
+# elif tbrf != 0 and rtbf_inf == 0:
+#    listDict = [PlateSup, rPlateSup, wPlate1, PlateInf]
+
+# elif tbrf != 0 and rtbf_inf != 0:
+#    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
+
+
+listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
 Isection = builtSection(listDict)
 n = 6
 
@@ -101,6 +171,8 @@ n = 6
 
 SectionComposite_I = CompositeSection(Isection, clsSection, [b0, b1], n)
 cplot = plotSection_ploty(SectionComposite_I)
+#plot section in STREAMLIT
+st.plotly_chart(cplot , use_container_width=True)
 #cplot.show()
 
 ninf = 15
@@ -108,7 +180,9 @@ n0 = 6
 nr = 18
 nc = 17
 
+listParams = ["A", "Ay", "Az", "Iy", "Iz", "It", "Pg", "ay", "az"]
 dictProp = {}
+table = {}
 
 #Fase 1 - Only steel
 dictProp["g1"] = Isection
@@ -116,6 +190,7 @@ dictProp["g1"] = Isection
 #Fase 2 - G2 - t inf
 SectionComposite_g2 = CompositeSection(Isection, clsSection, [b0, b1], ninf)
 dictProp["g2"] = SectionComposite_g2
+
 
 #Fase 3 - R - ritiro
 SectionComposite_r = CompositeSection(Isection, clsSection, [b0, b1], nr)
@@ -133,6 +208,18 @@ dictProp["mobili"] = SectionComposite_m
 clsSection_F = RectangularSection(0.1, 0.1, [0, 0], material="C25/30")
 SectionComposite_f = CompositeSection(Isection, clsSection_F, [b0, b1], 100000)
 dictProp["fe"] = SectionComposite_f
+
+# per print table
+table["g1"] = { i :dictProp["g1"][i] for i in listParams}
+table["g2"] = { i :dictProp["g2"][i] for i in listParams}
+table["r"] = { i :dictProp["r"][i] for i in listParams}
+table["c"] = { i :dictProp["c"][i] for i in listParams}
+table["mobili"] = { i :dictProp["mobili"][i] for i in listParams}
+table["fe"] = { i :dictProp["fe"][i] for i in listParams}
+
+df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
+st.write(df_section_prop)
+
 
 ## CALCOLO TENSIONI
 tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, # peso proprio
@@ -171,7 +258,7 @@ def tension(dictProp, Sollecitazioni):
 
    g2_sigmaN = N*1000/dictProp["g2"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["g2"]["Pg"][1]
-   g2_sigmaMf = (Mf*1000/dictProp["g2"]["Iy"])*hg #contributo per momento flettente
+   g2_sigmaMf = (Mf*1000**2/dictProp["g2"]["Iy"])*hg #contributo per momento flettente
    g2_sigma = g2_sigmaN + g2_sigmaMf
    g2_sigma[0], g2_sigma[1] =  g2_sigma[0]/ninf, g2_sigma[1]/ninf
    g2_sigma_plot = list(g2_sigma) + [0.0, 0.0, g2_sigma[0]]
@@ -182,7 +269,7 @@ def tension(dictProp, Sollecitazioni):
 
    ts_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
-   ts_sigmaMf = (Mf*1000/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
+   ts_sigmaMf = (Mf*1000**2/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
    ts_sigma = ts_sigmaN + ts_sigmaMf
    ts_sigma[0], ts_sigma[1] =  ts_sigma[0]/n0, ts_sigma[1]/n0
    ts_sigma_plot = list(ts_sigma) + [0.0, 0.0, ts_sigma[0]]
@@ -193,35 +280,60 @@ def tension(dictProp, Sollecitazioni):
 
    udl_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
-   udl_sigmaMf = (Mf*1000/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
+   udl_sigmaMf = (Mf*1000**2/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
    udl_sigma = udl_sigmaN + udl_sigmaMf
    udl_sigma[0], udl_sigma[1] =  udl_sigma[0]/n0, udl_sigma[1]/n0
    udl_sigma_plot = list(udl_sigma) + [0.0, 0.0, udl_sigma[0]]
 
+   list_sigma = [g1_sigma_plot,
+                 g2_sigma_plot,
+                 ts_sigma_plot,
+                 udl_sigma_plot]
 
+   sigma_tot_plot = np.sum(list_sigma, axis=0)
    
 
-   sigma_tot_plot = np.sum([g1_sigma_plot,
-                       g2_sigma_plot,
-                       ts_sigma_plot,
-                       udl_sigma_plot,
-                       ], axis=0)
+   
+   fig = go.Figure()
 
-   plt.figure(1)
-   # plt.plot(g1_sigma_plot, hi_plot)
-   # plt.plot(g2_sigma_plot, hi_plot)
-   # plt.plot(ts_sigma_plot, hi_plot)
-   # plt.plot(udl_sigma_plot, hi_plot)
-   plt.plot(sigma_tot_plot, hi_plot)
-   plt.gca().invert_yaxis()  # Reverse x-axis
-   plt.show()
+   #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
+   #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
+   fig.add_trace(go.Scatter(x=sigma_tot_plot, y=hi_plot, fill='tozeroy', name = "tensione totale")) 
+
+   fig.update_layout(
+      title=dict(
+         text="Tensione totale sulla sezione"
+      ),
+      xaxis=dict(
+         title=dict(
+               text="tensione [MPa]"
+         )
+      ),
+      yaxis=dict(
+         title=dict(
+               text="ascissa sull'altezza della sezione [mm]"
+         )
+      ),
+      # legend=dict(
+      #    title=dict(
+      #          text="Legend Title"
+      #    )
+      #),
+      font=dict(
+         family="Courier New, monospace",
+         size=18,
+         color="RebeccaPurple"
+      )
+   )
 
 
-   return
+   return fig, list_sigma
 
 
-
-tension(dictProp, Sollecitazioni)
+## PLOT TENSION
+tension_plot, list_tension = tension(dictProp, Sollecitazioni)
+st.plotly_chart(tension_plot , 
+                use_container_width=True)
 
 
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
