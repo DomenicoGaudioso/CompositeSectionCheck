@@ -1,11 +1,11 @@
 import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
-import matplotlib.pyplot as plt
-from shapely.geometry import Polygon
-from scipy.spatial import ConvexHull
+#import matplotlib.pyplot as plt
+#from shapely.geometry import Polygon
+#from scipy.spatial import ConvexHull
 from SGMPy_material import *
-import plotly.graph_objs as go
+#import plotly.graph_objs as go
 
 # Funzione per verificare se una lista è annidata
 def is_lista_annidata(lista):

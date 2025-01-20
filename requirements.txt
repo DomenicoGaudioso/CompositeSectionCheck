@@ -2,8 +2,9 @@ pip
 streamlit>=1.33.0
 numpy
 plotly
+openpyxl
 streamlit_toggle
-matplotlib
+matplotlib.pyplot
 streamlit_option_menu
 pyvista
 scipy==1.11.1

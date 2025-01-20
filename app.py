@@ -2,12 +2,12 @@ import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
-from shapely.geometry import Polygon
-from scipy.spatial import ConvexHull
+#import matplotlib.pyplot as plt
+#from shapely.geometry import Polygon
+#from scipy.spatial import ConvexHull
 from SGMPy_material import *
 from SGMPy_section_v01 import *
-import plotly.graph_objects as go
+#import plotly.graph_objects as go
 
 input_data = {}  
 
@@ -25,7 +25,7 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
 
 def combinazione(Sollecitazioni):
    
-   path = "coefficienti.xlsx" #r"\util\coefficienti.xlsx" #
+   path = "coefficienti.xlsx"
    gamma = pd.read_excel(path, "SLU", index_col=0)
    psi = pd.read_excel(path, "SLE", index_col=0)
    #print(gamma.loc['g1', 'A1_sfav'])
