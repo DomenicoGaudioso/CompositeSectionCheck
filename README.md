@@ -1,0 +1,2 @@
+# CompositeSectionCheck
+Verifica sezione composta
