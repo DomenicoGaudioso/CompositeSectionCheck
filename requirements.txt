@@ -3,6 +3,7 @@ streamlit>=1.33.0
 numpy
 plotly
 streamlit_toggle
+matplotlib
 streamlit_option_menu
 pyvista
 scipy==1.11.1
