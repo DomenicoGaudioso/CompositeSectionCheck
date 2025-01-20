@@ -1,0 +1,15 @@
+pip
+streamlit>=1.33.0
+numpy
+plotly
+streamlit_toggle
+streamlit_option_menu
+pyvista
+stpyvista>=0.0.18
+trame
+trame-client
+trame-components
+trame-server
+trame-vtk
+trame-vuetify
+
