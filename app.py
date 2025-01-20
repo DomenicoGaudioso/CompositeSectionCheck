@@ -263,6 +263,28 @@ def tension(dictProp, Sollecitazioni):
    g2_sigma[0], g2_sigma[1] =  g2_sigma[0]/ninf, g2_sigma[1]/ninf
    g2_sigma_plot = list(g2_sigma) + [0.0, 0.0, g2_sigma[0]]
 
+   ## R+ (CONTROLLARE)
+   N = Sollecitazioni["R+"]["N"]
+   Mf = Sollecitazioni["R+"]["Mf"]
+
+   r_sigmaN = N*1000/dictProp["r"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["r"]["Pg"][1]
+   r_sigmaMf = (Mf*1000**2/dictProp["r"]["Iy"])*hg #contributo per momento flettente
+   r_sigma = r_sigmaN + r_sigmaMf
+   r_sigma[0], r_sigma[1] =  r_sigma[0]/nr, r_sigma[1]/nr
+   r_sigma_plot = list(r_sigma) + [0.0, 0.0, r_sigma[0]]
+
+   ## C+ (CONTROLLARE)
+   N = Sollecitazioni["R+"]["N"]
+   Mf = Sollecitazioni["R+"]["Mf"]
+
+   c_sigmaN = N*1000/dictProp["c"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["c"]["Pg"][1]
+   c_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
+   c_sigma = c_sigmaN + c_sigmaMf
+   c_sigma[0], c_sigma[1] =  c_sigma[0]/nc, c_sigma[1]/nc
+   c_sigma_plot = list(c_sigma) + [0.0, 0.0, c_sigma[0]]
+
    ## MQ+
    N = Sollecitazioni["MQ+"]["N"]
    Mf = Sollecitazioni["MQ+"]["Mf"]
@@ -287,12 +309,14 @@ def tension(dictProp, Sollecitazioni):
 
    list_sigma = [g1_sigma_plot,
                  g2_sigma_plot,
+                 r_sigma_plot,
+                 c_sigma_plot,
                  ts_sigma_plot,
                  udl_sigma_plot]
 
    sigma_tot_plot = np.sum(list_sigma, axis=0)
    
-
+   list_sigma.append(sigma_tot_plot)
    
    fig = go.Figure()
 
@@ -335,98 +359,26 @@ tension_plot, list_tension = tension(dictProp, Sollecitazioni)
 st.plotly_chart(tension_plot , 
                 use_container_width=True)
 
+# using naive method
+# to convert lists to dictionary
+test_keys = ["g1", "g2", "r", "c", "ts", "udl", "totale"]
+tension_table_print = {}
+for key in test_keys:
+    for value in list_tension:
+        tension_table_print[key] = value
+
+df_tension = pd.DataFrame.from_dict(tension_table_print, orient = "index").T #.reset_index()
+st.write(df_tension)
+
 
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
 
-
-#RIFARE QUESTA FUNZIONE
-#---------------------------------------------#
-def ConcioPropCalculate(dictConci, n = [18.34, 17.53, 6.45]): #Calcolo proprietà lorde della sezione senza considerare Beff
-   
-   dictProp = {}
-   for i in dictConci:
-      #costant Prop
-      tw = dictConci[i]['SectionDefine']['tickness']['Web']
-      H = dictConci[i]['SectionDefine']['variabile']["H"][0]
-      tc = dictConci[i]["slab"]["hc"]
-      phi = dictConci[i]["slab"]["D_bar"]
-      p = dictConci[i]["slab"]["int_bar"] # passo bar
-      
-      bsup_ext = dictConci[i]["IntSup_ext"]
-      bsup_int = dictConci[i]["IntSup_int"]
-      binf_ext = dictConci[i]["IntInf_ext"]
-      binf_int = dictConci[i]["IntInf_int"]
-      
-      ## SECTION PROP CALCULATE
-      dictProp[i] = {'SectionProp':{"fase 0": None, "fase 1": None, "fase 2": None, "fase 3": None, "fase 4": None }}
-      
-      for bi_sup_e, bi_sup_i, bi_inf_e, bi_inf_i in zip(bsup_ext, bsup_int, binf_ext, binf_int):
-         beffSup = bi_sup_e + bi_sup_i
-         beffInf = bi_inf_e + bi_inf_i
-         
-         #calcolo t equivalente
-         Asup = dictConci[i]['SectionDefine']['tickness']['Psup_ext']*bi_sup_e + dictConci[i]['SectionDefine']['tickness']['Psup_int']*bi_sup_i
-         tpsup = Asup/(beffSup)
-         Asup = dictConci[i]['SectionDefine']['tickness']['Pinf_ext']*bi_inf_e + dictConci[i]['SectionDefine']['tickness']['Pinf_int']*bi_inf_i
-         tpinf = Asup/(beffInf)
-         
-         #assemble section
-         clsSection = RectangularSection(beffSup, tc, [0, 0])
-         n_bar = int(np.floor(beffSup/p)) #numero di bar
-         pointG0 = [[p*i - (n_bar-1)*p*0.5, tc/2] for i in range(0, n_bar)] 
-         b0 = renforcementBar(phi, pointG0 )
-         
-         orPlateSup1 = OrizontalPlate(beffSup, tpsup, [0, tc])
-         vribs1 = V_rib(283, 300, 25, 6, [0, tc+tpsup]) #cl4Dict={"Binst":75, "Be1":60}
-         wPlate1 = WebPlate(H-tpsup-tpinf, tw, [0, tc+tpsup], 0, material=None, cl4Dict=None)
-         WebRibs = L__rib(120, 80, 10, [tw/2, 860-120], angle = -90) 
-         pInfRibs = L__rib(120, 80, 10, [-10/2, H+tc-tpinf-120]) 
-         orPlateInf1 = OrizontalPlate(beffInf, tpinf, [0, (tc+H-tpinf)])
-         ## V ribs
-         p_ribs1 = 600 # passo ribs
-         n_ribs1 = int(np.floor(beffSup/p_ribs1)) #numero di ribs
-         intRibs1 = [p_ribs1*i - (n_ribs1-1)*p_ribs1*0.5 for i in range(0, n_ribs1)] 
-         ## Web ribs
-         p_WebRibs = 600 # passo ribs
-         n_WebRibs = 2 #numero di ribs
-         int_WebRibs = [0] #[0, -700] 
-         ## Plate inf ribs
-         p_PinfRibs = 900 # passo ribs
-         n_PinfRibs = int(np.floor(beffInf/p_PinfRibs)) #numero di ribs
-         int_PinfRibs = [p_PinfRibs*i - (n_PinfRibs-1)*p_PinfRibs*0.5 for i in range(0, n_PinfRibs)]
-         SectionnNassirya = OrthotropicSection1(orPlateSup1, vribs1,  intRibs1,  wPlate1,  WebRibs,  int_WebRibs, orPlateInf1, pInfRibs,  int_PinfRibs)
-         #plotSection(SectionnNassirya, center=True, propTable=True)
-
-         """
-         #Fase 0 - Construction - partial section
-         sectionProp = SectionnNassirya
-         dictProp[i]['SectionProp']["fase 0"] = sectionProp
-         
-         #Fase 1 - G1 - Only steel
-         sectionProp1 = SectionnNassirya
-         dictProp[i]['SectionProp']["fase 1"] = sectionProp1
-         
-         #Fase 2 - G2 - t inf
-         sectionProp2 = CompositeSection(SectionnNassirya, clsSection, [b0], n[0])
-         dictProp[i]['SectionProp']["fase 2"] = sectionProp2
-         
-         #Fase 3 - R - ritiro
-         sectionProp3 = CompositeSection(SectionnNassirya, clsSection, [b0], n[1])
-         dictProp[i]['SectionProp']["fase 3"] = sectionProp3
-         
-         #Fase 4 - C - cedimenti
-         sectionProp3 = CompositeSection(SectionnNassirya, clsSection, [b0], n[1])
-         dictProp[i]['SectionProp']["fase 3"] = sectionProp3
-         
-         #Fase 5 - Qm - mobili
-         sectionProp4 = CompositeSection(SectionnNassirya, clsSection, [b0], n[2])
-         dictProp[i]['SectionProp']["fase 4"] = sectionProp4
-         
-         #Fase 6 - Fessurato
-         sectionProp4 = CompositeSection(SectionnNassirya, clsSection, [b0], n[2])
-         dictProp[i]['SectionProp']["fase 4"] = sectionProp4
-         """
-         
-   return dictProp
-
+# Editable table using st.data_editor
+st.title("verifiche sezione a M+")
+st.write("Verifica sezione in acciaio allo SLU")
+st.write("Verifica sezione in acciaio allo SLE")
+st.write("Verifica a fatica")
+st.write("Verifica pioli")
+st.write("verifica saldature")
+st.write("")
 
