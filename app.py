@@ -2,7 +2,7 @@ import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 from scipy.spatial import ConvexHull
 from SGMPy_material import *

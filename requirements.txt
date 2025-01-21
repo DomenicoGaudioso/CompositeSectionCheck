@@ -4,7 +4,7 @@ numpy
 plotly
 openpyxl
 streamlit_toggle
-matplotlib.pyplot
+matplotlib
 streamlit_option_menu
 pyvista
 shapely
