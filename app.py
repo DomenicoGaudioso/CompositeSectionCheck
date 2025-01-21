@@ -517,8 +517,6 @@ tension_table_print_negative = {}
 for i, key in enumerate(test_keys):
    tension_table_print_negative[key] = list_tension_neg[i]
 
-
-
 with tab12:
    st.plotly_chart(tension_plot_neg[0], use_container_width=True, key= "tension_g1-")
 with tab13:
@@ -549,17 +547,50 @@ st.write(df_tension_neg)
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
 
 # Editable table using st.data_editor
-st.title("verifiche strutturali")
+# Elenco delle verifiche in Markdown
+# Descrizione con Markdown e LaTeX
 
-st.write("Verifica tensionale allo SLU")
-st.write("Verifica acciaio M+")
-st.write("Verifica acciaio M-")
 
-st.write("Verifica a taglio-instabilità")
-st.write("Verifica tensionale allo SLE")
-st.write("Verifica strappo lamiera")
-st.write("Verifica a fatica")
-st.write("Verifica pioli")
-st.write("verifica saldature")
-st.write("")
+st.markdown(r"""
+## Verifiche strutturali
+
+   1. **Verifica di resistenza:**  
+   La tensione è calcolata come segue:
+
+   $$
+   \sigma(y) = \frac{N}{A} + \frac{M\cdot y}{I}
+   $$
+
+   Dove:
+   - $$ \sigma(y)$$: Tensione normale nel punto.
+   - N: Forza normale (assiale).
+   - A: Area della sezione trasversale.
+   - M: Momento flettenti 
+   - I: Momento di inerzia
+   - y: Coordinate del punto rispetto al baricentro della sezione.
+
+
+2. **Verifica di stabilità:**
+   - Instabilità flesso-torsionale (LTB).
+   - Instabilità locale (instabilità delle anime o delle piattabande).
+
+3. **Verifica a fatica:**
+   - Analisi del numero di cicli e tensioni alternate.
+   - Verifica della categoria di dettaglio (EN 1993-1-9).
+
+4. **Verifica degli stati limite di esercizio (SLE):**
+   - Limitazione delle deformazioni.
+   - Controllo delle vibrazioni.
+   - Limitazione delle tensioni in esercizio.
+
+5. **Verifica delle connessioni:**.
+   - verifica delle saldature.
+   - verifica pioli.
+
+
+## Normativa di riferimento
+- EN 1993-1-1: Progettazione delle strutture in acciaio - Regole generali.
+- EN 1993-1-8: Progettazione delle connessioni in acciaio.
+- EN 1993-1-9: Verifica a fatica delle strutture in acciaio.
+""")
 
