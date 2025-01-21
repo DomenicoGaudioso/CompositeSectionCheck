@@ -218,7 +218,7 @@ table["mobili"] = { i :dictProp["mobili"][i] for i in listParams}
 table["fe"] = { i :dictProp["fe"][i] for i in listParams}
 
 df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
-st.write(df_section_prop)
+#st.write(df_section_prop)
 
 
 ## CALCOLO TENSIONI
@@ -237,13 +237,21 @@ tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, #
 hi = [0, gapCls, gapCls, gapCls+tbf, gapCls+tbf+tbrf, gapCls+tbf+tbrf+hw, gapCls+tbf+tbrf+hw+rtbf_inf, gapCls+tbf+tbrf+hw+rtbf_inf+tbf_inf]
 
 
-def tension(dictProp, Sollecitazioni):
+
+def tension(dictProp, Sollecitazioni, condition = "positive"):
+
+   posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
+   negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
 
    hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
    ## G1+
-   N = Sollecitazioni["G1+"]["N"]
-   Mf = Sollecitazioni["G1+"]["Mf"]
+   if condition == "positive":
+      N = Sollecitazioni[posList[0]]["N"]
+      Mf = Sollecitazioni[posList[0]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[0]]["N"]
+      Mf = Sollecitazioni[negList[0]]["Mf"]
 
    g1_sigmaN = N*1000/dictProp["g1"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["g1"]["Pg"][1]
@@ -251,10 +259,16 @@ def tension(dictProp, Sollecitazioni):
    g1_sigma = g1_sigmaN + g1_sigmaMf
    g1_sigma[0], g1_sigma[1] = 0, 0
    g1_sigma_plot = list(g1_sigma) + [0.0, 0.0, g1_sigma[0]]
+
+   #st.write(g1_sigma_plot)
    
    ## G2+
-   N = Sollecitazioni["G2+"]["N"]
-   Mf = Sollecitazioni["G2+"]["Mf"]
+   if condition == "positive":
+      N = Sollecitazioni[posList[1]]["N"]
+      Mf = Sollecitazioni[posList[1]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[1]]["N"]
+      Mf = Sollecitazioni[negList[1]]["Mf"]
 
    g2_sigmaN = N*1000/dictProp["g2"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["g2"]["Pg"][1]
@@ -263,9 +277,15 @@ def tension(dictProp, Sollecitazioni):
    g2_sigma[0], g2_sigma[1] =  g2_sigma[0]/ninf, g2_sigma[1]/ninf
    g2_sigma_plot = list(g2_sigma) + [0.0, 0.0, g2_sigma[0]]
 
+   #st.write(g2_sigma_plot)
+
    ## R+ (CONTROLLARE)
-   N = Sollecitazioni["R+"]["N"]
-   Mf = Sollecitazioni["R+"]["Mf"]
+   if condition == "positive":
+      N = Sollecitazioni[posList[2]]["N"]
+      Mf = Sollecitazioni[posList[2]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[2]]["N"]
+      Mf = Sollecitazioni[negList[2]]["Mf"]
 
    r_sigmaN = N*1000/dictProp["r"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["r"]["Pg"][1]
@@ -274,20 +294,30 @@ def tension(dictProp, Sollecitazioni):
    r_sigma[0], r_sigma[1] =  r_sigma[0]/nr, r_sigma[1]/nr
    r_sigma_plot = list(r_sigma) + [0.0, 0.0, r_sigma[0]]
 
-   ## C+ (CONTROLLARE)
-   N = Sollecitazioni["R+"]["N"]
-   Mf = Sollecitazioni["R+"]["Mf"]
+   ## Mfat+ Fatica (CONTROLLARE)
+   if condition == "positive":
+      N = Sollecitazioni[posList[3]]["N"]
+      Mf = Sollecitazioni[posList[3]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[3]]["N"]
+      Mf = Sollecitazioni[negList[3]]["Mf"]
 
-   c_sigmaN = N*1000/dictProp["c"]["A"] #contributo per sola forza normale
-   hg = np.array(hi)+dictProp["c"]["Pg"][1]
-   c_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
-   c_sigma = c_sigmaN + c_sigmaMf
-   c_sigma[0], c_sigma[1] =  c_sigma[0]/nc, c_sigma[1]/nc
-   c_sigma_plot = list(c_sigma) + [0.0, 0.0, c_sigma[0]]
+   fat_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
+   fat_sigmaMf = (Mf*1000**2/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
+   fat_sigma = fat_sigmaN + fat_sigmaMf
+   fat_sigma[0], fat_sigma[1] =  fat_sigma[0]/n0, fat_sigma[1]/n0
+   fat_sigma_plot = list(fat_sigma) + [0.0, 0.0, fat_sigma[0]]
 
-   ## MQ+
-   N = Sollecitazioni["MQ+"]["N"]
-   Mf = Sollecitazioni["MQ+"]["Mf"]
+   #st.write(c_sigma_plot)
+
+   ## MQ+ Mobili concentrati
+   if condition == "positive":
+      N = Sollecitazioni[posList[4]]["N"]
+      Mf = Sollecitazioni[posList[4]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[4]]["N"]
+      Mf = Sollecitazioni[negList[4]]["Mf"]
 
    ts_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
@@ -296,9 +326,15 @@ def tension(dictProp, Sollecitazioni):
    ts_sigma[0], ts_sigma[1] =  ts_sigma[0]/n0, ts_sigma[1]/n0
    ts_sigma_plot = list(ts_sigma) + [0.0, 0.0, ts_sigma[0]]
 
-   ## Md+
-   N = Sollecitazioni["Md+"]["N"]
-   Mf = Sollecitazioni["Md+"]["Mf"]
+   #st.write(ts_sigma_plot)
+
+   ## Md+ Mobili distribuiti
+   if condition == "positive":
+      N = Sollecitazioni[posList[5]]["N"]
+      Mf = Sollecitazioni[posList[5]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[5]]["N"]
+      Mf = Sollecitazioni[negList[5]]["Mf"]
 
    udl_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
@@ -307,76 +343,221 @@ def tension(dictProp, Sollecitazioni):
    udl_sigma[0], udl_sigma[1] =  udl_sigma[0]/n0, udl_sigma[1]/n0
    udl_sigma_plot = list(udl_sigma) + [0.0, 0.0, udl_sigma[0]]
 
+   ## Mf+ Mobili folla
+   if condition == "positive":
+      N = Sollecitazioni[posList[6]]["N"]
+      Mf = Sollecitazioni[posList[6]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[6]]["N"]
+      Mf = Sollecitazioni[negList[6]]["Mf"]
+
+   folla_sigmaN = N*1000/dictProp["mobili"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["mobili"]["Pg"][1]
+   folla_sigmaMf = (Mf*1000**2/dictProp["mobili"]["Iy"])*hg #contributo per momento flettente
+   folla_sigma = folla_sigmaN + folla_sigmaMf
+   folla_sigma[0], folla_sigma[1] =  folla_sigma[0]/n0, folla_sigma[1]/n0
+   folla_sigma_plot = list(folla_sigma) + [0.0, 0.0, folla_sigma[0]]
+
+   ## T+ termica(CONTROLLARE)
+   if condition == "positive":
+      N = Sollecitazioni[posList[7]]["N"]
+      Mf = Sollecitazioni[posList[7]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[7]]["N"]
+      Mf = Sollecitazioni[negList[7]]["Mf"]
+
+   t_sigmaN = N*1000/dictProp["c"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["c"]["Pg"][1]
+   t_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
+   t_sigma = t_sigmaN + t_sigmaMf
+   t_sigma[0], t_sigma[1] =  t_sigma[0]/ninf, t_sigma[1]/ninf
+   t_sigma_plot = list(t_sigma) + [0.0, 0.0, t_sigma[0]]
+
+   ## C+ (CONTROLLARE)
+   if condition == "positive":
+      N = Sollecitazioni[posList[8]]["N"]
+      Mf = Sollecitazioni[posList[8]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[8]]["N"]
+      Mf = Sollecitazioni[negList[8]]["Mf"]
+
+   c_sigmaN = N*1000/dictProp["c"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["c"]["Pg"][1]
+   c_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
+   c_sigma = c_sigmaN + c_sigmaMf
+   c_sigma[0], c_sigma[1] =  c_sigma[0]/nc, c_sigma[1]/nc
+   c_sigma_plot = list(c_sigma) + [0.0, 0.0, c_sigma[0]]
+
+   ## V+ vento(CONTROLLARE)
+   if condition == "positive":
+      N = Sollecitazioni[posList[9]]["N"]
+      Mf = Sollecitazioni[posList[9]]["Mf"]
+   else:
+      N = Sollecitazioni[negList[9]]["N"]
+      Mf = Sollecitazioni[negList[9]]["Mf"]
+
+   v_sigmaN = N*1000/dictProp["c"]["A"] #contributo per sola forza normale
+   hg = np.array(hi)+dictProp["c"]["Pg"][1]
+   v_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
+   v_sigma = v_sigmaN + v_sigmaMf
+   v_sigma[0], v_sigma[1] =  v_sigma[0]/ninf, v_sigma[1]/ninf
+   v_sigma_plot = list(v_sigma) + [0.0, 0.0, v_sigma[0]]
+
+   #st.write(udl_sigma_plot)
+
    list_sigma = [g1_sigma_plot,
                  g2_sigma_plot,
                  r_sigma_plot,
-                 c_sigma_plot,
+                 fat_sigma_plot,
                  ts_sigma_plot,
-                 udl_sigma_plot]
+                 udl_sigma_plot,
+                 folla_sigma_plot,
+                 t_sigma_plot,
+                 c_sigma_plot,
+                 v_sigma_plot,
+                  ]
 
    sigma_tot_plot = np.sum(list_sigma, axis=0)
    
    list_sigma.append(sigma_tot_plot)
    
-   fig = go.Figure()
+   list_fig = []
+   for i_sigma in list_sigma:
 
-   #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
-   #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
-   fig.add_trace(go.Scatter(x=sigma_tot_plot, y=hi_plot, fill='tozeroy', name = "tensione totale")) 
+      fig = go.Figure()
 
-   fig.update_layout(
-      title=dict(
-         text="Tensione totale sulla sezione"
-      ),
-      xaxis=dict(
+      #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
+      #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
+      fig.add_trace(go.Scatter(x=i_sigma, y=hi_plot, fill='tozeroy')) 
+
+      fig.update_layout(
          title=dict(
-               text="tensione [MPa]"
+            text="Tensione sulla sezione"
+         ),
+         xaxis=dict(
+            title=dict(
+                  text="tensione [MPa]"
+            )
+         ),
+         yaxis=dict(
+            title=dict(
+                  text="ascissa sull'altezza della sezione [mm]"
+            )
+         ),
+         # legend=dict(
+         #    title=dict(
+         #          text="Legend Title"
+         #    )
+         #),
+         font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="RebeccaPurple"
          )
-      ),
-      yaxis=dict(
-         title=dict(
-               text="ascissa sull'altezza della sezione [mm]"
-         )
-      ),
-      # legend=dict(
-      #    title=dict(
-      #          text="Legend Title"
-      #    )
-      #),
-      font=dict(
-         family="Courier New, monospace",
-         size=18,
-         color="RebeccaPurple"
       )
-   )
+      
+      fig.update_layout(yaxis = dict(autorange="reversed"))
+
+      list_fig.append(fig)
 
 
-   return fig, list_sigma
+   return list_fig, list_sigma
 
 
-## PLOT TENSION
-tension_plot, list_tension = tension(dictProp, Sollecitazioni)
-st.plotly_chart(tension_plot , 
-                use_container_width=True)
+
+## PLOT TENSION POSITIVE
+tension_plot_plus, list_tension = tension(dictProp, Sollecitazioni)
 
 # using naive method
 # to convert lists to dictionary
-test_keys = ["g1", "g2", "r", "c", "ts", "udl", "totale"]
+test_keys = ["g1", "g2", "r", "Mf", "Mts", "Mudl", "Mfolla", "T", "C", "V", "totale"]
 tension_table_print = {}
-for key in test_keys:
-    for value in list_tension:
-        tension_table_print[key] = value
+for i, key in enumerate(test_keys):
+   tension_table_print[key] = list_tension[i]
+
+st.title("Tensioni M+")
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11  = st.tabs(test_keys)
+
+with tab1:
+   st.plotly_chart(tension_plot_plus[0], use_container_width=True, key= "tension_g1+")
+with tab2:
+   st.plotly_chart(tension_plot_plus[1], use_container_width=True, key= "tension_g2+")
+with tab3:
+   st.plotly_chart(tension_plot_plus[2], use_container_width=True, key= "tension_r+")
+with tab4:
+   st.plotly_chart(tension_plot_plus[3], use_container_width=True, key= "tension_Mf+")
+with tab5:
+   st.plotly_chart(tension_plot_plus[4], use_container_width=True, key= "tension_Mts+")
+with tab6:
+   st.plotly_chart(tension_plot_plus[5], use_container_width=True, key= "tension_Mudl+")
+with tab7:
+   st.plotly_chart(tension_plot_plus[6], use_container_width=True, key= "tension_Mfolla+")
+with tab8:
+   st.plotly_chart(tension_plot_plus[7], use_container_width=True, key= "tension_t+")
+with tab9:
+   st.plotly_chart(tension_plot_plus[8], use_container_width=True, key= "tension_c+")
+with tab10:
+   st.plotly_chart(tension_plot_plus[9], use_container_width=True, key= "tension_v+")
+with tab11:
+   st.plotly_chart(tension_plot_plus[10], use_container_width=True, key= "tension_tot+")
 
 df_tension = pd.DataFrame.from_dict(tension_table_print, orient = "index").T #.reset_index()
 st.write(df_tension)
 
 
+## PLOT TENSION NEGATIVE
+st.title("Tensioni M-")
+tab12, tab13, tab14, tab15, tab16, tab17, tab18, tab19, tab20, tab21, tab22 = st.tabs(test_keys)
+
+tension_plot_neg, list_tension_neg = tension(dictProp, Sollecitazioni, condition="negative")
+
+# using naive method
+# to convert lists to dictionary
+tension_table_print_negative = {}
+for i, key in enumerate(test_keys):
+   tension_table_print_negative[key] = list_tension_neg[i]
+
+
+
+with tab12:
+   st.plotly_chart(tension_plot_neg[0], use_container_width=True, key= "tension_g1-")
+with tab13:
+   st.plotly_chart(tension_plot_neg[1], use_container_width=True, key= "tension_g2-")
+with tab14:
+   st.plotly_chart(tension_plot_neg[2], use_container_width=True, key= "tension_r-")
+with tab15:
+   st.plotly_chart(tension_plot_neg[3], use_container_width=True, key= "tension_Mf-")
+with tab16:
+   st.plotly_chart(tension_plot_neg[4], use_container_width=True, key= "tension_Mts-")
+with tab17:
+   st.plotly_chart(tension_plot_neg[5], use_container_width=True, key= "tension_Mudl-")
+with tab18:
+   st.plotly_chart(tension_plot_neg[6], use_container_width=True, key= "tension_Mfolla-")
+with tab19:
+   st.plotly_chart(tension_plot_neg[7], use_container_width=True, key= "tension_t-")
+with tab20:
+   st.plotly_chart(tension_plot_neg[8], use_container_width=True, key= "tension_c-")
+with tab21:
+   st.plotly_chart(tension_plot_neg[9], use_container_width=True, key= "tension_v-")
+with tab22:
+   st.plotly_chart(tension_plot_neg[10], use_container_width=True, key= "tension_tot-")
+
+df_tension_neg = pd.DataFrame.from_dict(tension_table_print_negative, orient = "index").T #.reset_index()
+st.write(df_tension_neg)
+
+
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
 
 # Editable table using st.data_editor
-st.title("verifiche sezione a M+")
-st.write("Verifica sezione in acciaio allo SLU")
-st.write("Verifica sezione in acciaio allo SLE")
+st.title("verifiche strutturali")
+
+st.write("Verifica tensionale allo SLU")
+st.write("Verifica acciaio M+")
+st.write("Verifica acciaio M-")
+
+st.write("Verifica a taglio-instabilità")
+st.write("Verifica tensionale allo SLE")
+st.write("Verifica strappo lamiera")
 st.write("Verifica a fatica")
 st.write("Verifica pioli")
 st.write("verifica saldature")
