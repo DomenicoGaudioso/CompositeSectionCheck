@@ -1,4 +1,4 @@
-pip
+pip >=24.3.1
 streamlit>=1.41.0
 numpy
 plotly
@@ -6,14 +6,6 @@ openpyxl
 streamlit_toggle
 matplotlib
 streamlit_option_menu
-pyvista
 shapely
 scipy==1.11.1
-stpyvista>=0.0.18
-trame
-trame-client
-trame-components
-trame-server
-trame-vtk
-trame-vuetify
 
