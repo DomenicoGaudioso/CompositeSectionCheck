@@ -24,9 +24,34 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
                   'V+':{ 'N': 0.0, 'T': 0.0, 'Mf': 10.0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # vento
         }
 
-def combinazione(Sollecitazioni):
+def combinazione(list_sigma):
    
    path = "coefficienti.xlsx"
+
+   # list_sigma = [g1_sigma_plot,
+   #             g2_sigma_plot,
+   #             r_sigma_plot,
+   #             fat_sigma_plot,
+   #             ts_sigma_plot,
+   #             udl_sigma_plot,
+   #             folla_sigma_plot,
+   #             t_sigma_plot,
+   #             c_sigma_plot,
+   #             v_sigma_plot,
+   #             ]
+
+   sigma_slu = list_sigma[0] #G1
+   + list_sigma[0] #G2
+   + list_sigma[1] #Ritiro
+   + list_sigma[2] #Carichi mobili concentrati
+   + list_sigma[3] #Carichi mobili distribuiti
+   + list_sigma[4] #Carico folla
+   + list_sigma[5] #temperatura
+   + list_sigma[6] #cedimenti
+   + list_sigma[7] #vento
+
+   
+
    gamma = pd.read_excel(path, "SLU", index_col=0)
    psi = pd.read_excel(path, "SLE", index_col=0)
    #print(gamma.loc['g1', 'A1_sfav'])
@@ -78,8 +103,18 @@ input_section = { 'l': [12*1000], #lunghezza del concio
                   "h_predalle": [50],
                   "Bcls": [1000],
 
-                  "D_bar": [16], 
-                  "int_bar": [100]}
+                  "phi_sup": [16], 
+                  "int_sup": [100],
+                  "int_inf": [100],
+                  "phi_inf": [16], 
+                  "int_inf": [100],
+
+                  "n_inf": [15], 
+                  "n_0": [6],
+                  "n_r": [18], 
+                  "n_c": [17],
+                  }
+
 
 # Convert dictionary to DataFrame
 df_section = pd.DataFrame.from_dict(input_section, orient = "index") #.reset_index()
@@ -107,6 +142,10 @@ st.json(updated_dict, expanded=False)
 Hcls = float(edited_df.loc["hcls"][0])
 Bcls = float(edited_df.loc['Bcls'][0])
 hpredall = float(edited_df.loc['h_predalle'][0])
+phi_sup = float(edited_df.loc['phi_sup'][0])
+int_sup = float(edited_df.loc['int_sup'][0])
+phi_inf = float(edited_df.loc['phi_inf'][0])
+int_inf = float(edited_df.loc['int_inf'][0])
 
 bf = float(edited_df.loc['bPsup'][0])
 tbf = float(edited_df.loc['tPsup'][0])
@@ -123,15 +162,19 @@ rtbf_inf = float(edited_df.loc['trPinf'][0])
 binf = float(edited_df.loc['bPinf'][0])
 tbf_inf = float(edited_df.loc['tPinf'][0])
 
+ninf = float(edited_df.loc['n_inf'][0])
+n0 = float(edited_df.loc['n_0'][0])
+nr = float(edited_df.loc['n_r'][0])
+nc = float(edited_df.loc['n_c'][0])
+
 
 
 ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
 clsSection = RectangularSection(Bcls, Hcls, [0, 0], material="C25/30")
-p = 100 # passo bar
-pointG0 = [[-p*i, 35] for i in range(0, int(Bcls*0.5/100))] + [[p*i, 35] for i in range(1, int(Bcls*0.5/100))]
-pointG1 = [[-p*i, Hcls-35] for i in range(0, int(Bcls*0.5/100))] + [[p*i, Hcls-35] for i in range(1, int(Bcls*0.5/100))]
-b0 = renforcementBar(12, pointG0)
-b1 = renforcementBar(12, pointG1)
+pointG0 = [[-int_sup*i, 35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, 35] for i in range(1, int(Bcls*0.5/100))]
+pointG1 = [[-int_inf*i, Hcls-35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, Hcls-35] for i in range(1, int(Bcls*0.5/100))]
+b0 = renforcementBar(phi_sup, pointG0)
+b1 = renforcementBar(phi_inf, pointG1)
 # = rectangularCA(clsSection, [b0, b1])
 #cplot = plotSection_ploty(c)
 #cplot.show()
@@ -164,21 +207,15 @@ PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], mat
 
 listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
 Isection = builtSection(listDict)
-n = 6
 
 
 #print(Isection)
 
-SectionComposite_I = CompositeSection(Isection, clsSection, [b0, b1], n)
+SectionComposite_I = CompositeSection(Isection, clsSection, [b0, b1], n0)
 cplot = plotSection_ploty(SectionComposite_I)
 #plot section in STREAMLIT
 st.plotly_chart(cplot , use_container_width=True)
 #cplot.show()
-
-ninf = 15
-n0 = 6
-nr = 18
-nc = 17
 
 listParams = ["A", "Ay", "Az", "Iy", "Iz", "It", "Pg", "ay", "az"]
 dictProp = {}
@@ -543,7 +580,9 @@ with tab22:
 df_tension_neg = pd.DataFrame.from_dict(tension_table_print_negative, orient = "index").T #.reset_index()
 st.write(df_tension_neg)
 
-
+## COEFFICIENTI DI SICUREZZA SULLE AZIONI
+coeff = pd.read_excel('coefficienti.xlsx', index_col=0) 
+st.write(coeff)
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
 
 # Editable table using st.data_editor
@@ -570,22 +609,22 @@ st.markdown(r"""
    - y: Coordinate del punto rispetto al baricentro della sezione.
 
 
-2. **Verifica di stabilità:**
-   - Instabilità flesso-torsionale (LTB).
-   - Instabilità locale (instabilità delle anime o delle piattabande).
+   2. **Verifica di stabilità:**
+      - Instabilità flesso-torsionale (LTB).
+      - Instabilità locale (instabilità delle anime o delle piattabande).
 
-3. **Verifica a fatica:**
-   - Analisi del numero di cicli e tensioni alternate.
-   - Verifica della categoria di dettaglio (EN 1993-1-9).
+   3. **Verifica a fatica:**
+      - Analisi del numero di cicli e tensioni alternate.
+      - Verifica della categoria di dettaglio (EN 1993-1-9).
 
-4. **Verifica degli stati limite di esercizio (SLE):**
-   - Limitazione delle deformazioni.
-   - Controllo delle vibrazioni.
-   - Limitazione delle tensioni in esercizio.
+   4. **Verifica degli stati limite di esercizio (SLE):**
+      - Limitazione delle deformazioni.
+      - Controllo delle vibrazioni.
+      - Limitazione delle tensioni in esercizio.
 
-5. **Verifica delle connessioni:**.
-   - verifica delle saldature.
-   - verifica pioli.
+   5. **Verifica delle connessioni:**.
+      - verifica delle saldature.
+      - verifica pioli.
 
 
 ## Normativa di riferimento
