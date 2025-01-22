@@ -909,13 +909,13 @@ df_ver2_slu = pd.DataFrame(data)
 st.table(df_ver2_slu)
 
 st.markdown("""   
-            ##### 3) Verifica delle saldature dei piatti - (S.L.U.)
+            ##### 3) Verifica delle saldature di composizione (S.L.U.)
             """)
 
 st.markdown("""   
-            ##### 4.1) Verifica dei pioli - (S.L.U.)
+            ##### 4.1) Verifica dei pioli (S.L.U.)
             """)
 
 st.markdown("""   
-            ##### 4.2) Verifica dei pioli - (S.L.E.)
+            ##### 4.2) Verifica dei pioli (S.L.E.)
             """)
