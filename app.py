@@ -24,10 +24,8 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
                   'V+':{ 'N': 0.0, 'T': 0.0, 'Mf': 10.0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # vento
         }
 
-def combinazione(list_sigma):
+def combinazione(list_sigma, category = "A1_sfav"):
    
-   path = "coefficienti.xlsx"
-
    # list_sigma = [g1_sigma_plot,
    #             g2_sigma_plot,
    #             r_sigma_plot,
@@ -39,28 +37,63 @@ def combinazione(list_sigma):
    #             c_sigma_plot,
    #             v_sigma_plot,
    #             ]
-
-   sigma_slu = list_sigma[0] #G1
-   + list_sigma[0] #G2
-   + list_sigma[1] #Ritiro
-   + list_sigma[2] #Carichi mobili concentrati
-   + list_sigma[3] #Carichi mobili distribuiti
-   + list_sigma[4] #Carico folla
-   + list_sigma[5] #temperatura
-   + list_sigma[6] #cedimenti
-   + list_sigma[7] #vento
-
    
+   path = "coefficienti.xlsx"
 
-   gamma = pd.read_excel(path, "SLU", index_col=0)
-   psi = pd.read_excel(path, "SLE", index_col=0)
-   #print(gamma.loc['g1', 'A1_sfav'])
-   #print(psi)
-   
-   # Nslu_pos = (gamma.loc['g1', 'A1_sfav'] * Sollecitazioni['G2+']['N'] + 
-   #            + gamma.loc['g2', 'A1_sfav'] * Sollecitazioni['G2+']['N']) 
+   gamma = pd.read_excel(path, "gamma", index_col=0)
+   psi = pd.read_excel(path, "psi", index_col=0)
 
-   return
+   gamma_g1 = gamma.loc['g1', category]
+   gamma_g2 = gamma.loc['g2', category]
+   gamma_r = gamma.loc['ritiro', category]
+   gamma_c = gamma.loc['cedimenti', category]
+   gamma_t = gamma.loc['temperatura', category]
+   gamma_m = gamma.loc['mobili', category]
+   gamma_v = gamma.loc['vento', category]
+
+   psi_ts = psi.loc['tandem', "psi0"]
+
+   sigma_slu = (np.array(list_sigma[0])*gamma_g1 #G1
+   + np.array(list_sigma[1])*gamma_g2 #G2
+   + np.array(list_sigma[2])*gamma_r #Ritiro
+   + np.array(list_sigma[4])*gamma_m #Carichi mobili concentrati
+   + np.array(list_sigma[5])*gamma_m #Carichi mobili distribuiti
+   + np.array(list_sigma[6])*gamma_m #Carico folla
+   + np.array(list_sigma[7])*gamma_t #temperatura
+   + np.array(list_sigma[8])*gamma_c #cedimenti
+   + np.array(list_sigma[9])*gamma_v)
+
+   sigma_rara = (np.array(list_sigma[0])*1 #G1
+   + np.array(list_sigma[1])*1 #G2
+   + np.array(list_sigma[2])*1 #Ritiro
+   + np.array(list_sigma[4])*psi.loc['tandem', "psi0"]#Carichi mobili concentrati
+   + np.array(list_sigma[5])*psi.loc['distribuiti', "psi0"] #Carichi mobili distribuiti
+   + np.array(list_sigma[6])*0 #Carico folla
+   + np.array(list_sigma[7])*psi.loc['temperatura', "psi0"] #temperatura
+   + np.array(list_sigma[8])*0 #cedimenti
+   + np.array(list_sigma[9])*psi.loc['ventoE', "psi0"])
+
+   sigma_frequente = (np.array(list_sigma[0])*1 #G1
+   + np.array(list_sigma[1])*1 #G2
+   + np.array(list_sigma[2])*1 #Ritiro
+   + np.array(list_sigma[3])*psi.loc['tandem', "psi1"]#Carichi mobili concentrati
+   + np.array(list_sigma[5])*psi.loc['distribuiti', "psi1"] #Carichi mobili distribuiti
+   + np.array(list_sigma[6])*psi.loc['folla', "psi1"] #Carico folla
+   + np.array(list_sigma[7])*psi.loc['temperatura', "psi1"] #temperatura
+   + np.array(list_sigma[8])*0 #cedimenti
+   + np.array(list_sigma[9])*psi.loc['ventoPS', "psi1"])
+
+   sigma_qp = (np.array(list_sigma[0])*1 #G1
+   + np.array(list_sigma[1])*1 #G2
+   + np.array(list_sigma[2])*1 #Ritiro
+   + np.array(list_sigma[3])*psi.loc['tandem', "psi2"]#Carichi mobili concentrati
+   + np.array(list_sigma[5])*psi.loc['distribuiti', "psi2"] #Carichi mobili distribuiti
+   + np.array(list_sigma[6])*psi.loc['folla', "psi2"] #Carico folla
+   + np.array(list_sigma[7])*psi.loc['temperatura', "psi2"] #temperatura
+   + np.array(list_sigma[8])*0 #cedimenti
+   + np.array(list_sigma[9])*psi.loc['ventoPS', "psi2"])
+
+   return sigma_slu, sigma_rara, sigma_frequente, sigma_qp
 
 
 ## START --> Sollecitazioni
@@ -73,18 +106,15 @@ st.title("Edit Sollecitazioni")
 st.write("Modify the values in the table below:")
 
 # Display the editable data table
-edited_df = st.data_editor(
+edited_df_soll = st.data_editor(
     df,
     use_container_width=True,
     num_rows="dynamic",  # Allow adding/removing rows
 )
 
 # Save changes and convert back to dictionary
-updated_dict = edited_df.set_index('Tipo').T.to_dict()
-st.json(updated_dict, expanded=False)
-
-combinazione(Sollecitazioni)
-
+updated_dict_soll = edited_df_soll.set_index('Tipo').T.to_dict()
+st.json(updated_dict_soll, expanded=False)
 
 input_section = { 'l': [12*1000], #lunghezza del concio
                  
@@ -125,47 +155,47 @@ st.title("Edit Sezione")
 st.write("Modify the values in the table below:")
 
 # Display the editable data table
-edited_df = st.data_editor(
+edited_df_sec = st.data_editor(
     df_section,
     use_container_width=True,
     num_rows="dynamic",  # Allow adding/removing rows
 )
 
 # convert back to dictionary
-updated_dict = edited_df.to_dict()
-st.json(updated_dict, expanded=False)
+updated_dict_section = edited_df_sec.to_dict()
+st.json(updated_dict_section , expanded=False)
 
 
 
 ##INPUT
 # Extract updated values from the table
-Hcls = float(edited_df.loc["hcls"][0])
-Bcls = float(edited_df.loc['Bcls'][0])
-hpredall = float(edited_df.loc['h_predalle'][0])
-phi_sup = float(edited_df.loc['phi_sup'][0])
-int_sup = float(edited_df.loc['int_sup'][0])
-phi_inf = float(edited_df.loc['phi_inf'][0])
-int_inf = float(edited_df.loc['int_inf'][0])
+Hcls = float(edited_df_sec.loc["hcls"][0])
+Bcls = float(edited_df_sec.loc['Bcls'][0])
+hpredall = float(edited_df_sec.loc['h_predalle'][0])
+phi_sup = float(edited_df_sec.loc['phi_sup'][0])
+int_sup = float(edited_df_sec.loc['int_sup'][0])
+phi_inf = float(edited_df_sec.loc['phi_inf'][0])
+int_inf = float(edited_df_sec.loc['int_inf'][0])
 
-bf = float(edited_df.loc['bPsup'][0])
-tbf = float(edited_df.loc['tPsup'][0])
+bf = float(edited_df_sec.loc['bPsup'][0])
+tbf = float(edited_df_sec.loc['tPsup'][0])
 
-bf_r = float(edited_df.loc['brPsup'][0])
-tbrf = float(edited_df.loc['trPsup'][0])
+bf_r = float(edited_df_sec.loc['brPsup'][0])
+tbrf = float(edited_df_sec.loc['trPsup'][0])
 
-hw = float(edited_df.loc['ha'][0])
-tw = float(edited_df.loc['ta'][0])
+hw = float(edited_df_sec.loc['ha'][0])
+tw = float(edited_df_sec.loc['ta'][0])
 
-rbf_inf = float(edited_df.loc['brPinf'][0])
-rtbf_inf = float(edited_df.loc['trPinf'][0])
+rbf_inf = float(edited_df_sec.loc['brPinf'][0])
+rtbf_inf = float(edited_df_sec.loc['trPinf'][0])
 
-binf = float(edited_df.loc['bPinf'][0])
-tbf_inf = float(edited_df.loc['tPinf'][0])
+binf = float(edited_df_sec.loc['bPinf'][0])
+tbf_inf = float(edited_df_sec.loc['tPinf'][0])
 
-ninf = float(edited_df.loc['n_inf'][0])
-n0 = float(edited_df.loc['n_0'][0])
-nr = float(edited_df.loc['n_r'][0])
-nc = float(edited_df.loc['n_c'][0])
+ninf = float(edited_df_sec.loc['n_inf'][0])
+n0 = float(edited_df_sec.loc['n_0'][0])
+nr = float(edited_df_sec.loc['n_r'][0])
+nc = float(edited_df_sec.loc['n_c'][0])
 
 
 
@@ -273,14 +303,12 @@ tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, #
 
 hi = [0, gapCls, gapCls, gapCls+tbf, gapCls+tbf+tbrf, gapCls+tbf+tbrf+hw, gapCls+tbf+tbrf+hw+rtbf_inf, gapCls+tbf+tbrf+hw+rtbf_inf+tbf_inf]
 
+hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
-
-def tension(dictProp, Sollecitazioni, condition = "positive"):
+def tension(dictProp, Sollecitazioni, hi_plot, condition = "positive"):
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
    negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
-
-   hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
    ## G1+
    if condition == "positive":
@@ -500,10 +528,47 @@ def tension(dictProp, Sollecitazioni, condition = "positive"):
 
    return list_fig, list_sigma
 
+def tension_plot(x_list, y_list):
+   fig = go.Figure()
+
+   #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
+   #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
+   fig.add_trace(go.Scatter(x=x_list, y=y_list, fill='tozeroy')) 
+
+   fig.update_layout(
+      title=dict(
+         text="Tensione sulla sezione"
+      ),
+      xaxis=dict(
+         title=dict(
+               text="tensione [MPa]"
+         )
+      ),
+      yaxis=dict(
+         title=dict(
+               text="ascissa sull'altezza della sezione [mm]"
+         )
+      ),
+      # legend=dict(
+      #    title=dict(
+      #          text="Legend Title"
+      #    )
+      #),
+      font=dict(
+         family="Courier New, monospace",
+         size=18,
+         color="RebeccaPurple"
+      )
+   )
+   
+   fig.update_layout(yaxis = dict(autorange="reversed"))
+
+   return fig
+
 
 
 ## PLOT TENSION POSITIVE
-tension_plot_plus, list_tension = tension(dictProp, Sollecitazioni)
+tension_plot_plus, list_tension = tension(dictProp, updated_dict_soll, hi_plot)
 
 # using naive method
 # to convert lists to dictionary
@@ -546,7 +611,7 @@ st.write(df_tension)
 st.title("Tensioni M-")
 tab12, tab13, tab14, tab15, tab16, tab17, tab18, tab19, tab20, tab21, tab22 = st.tabs(test_keys)
 
-tension_plot_neg, list_tension_neg = tension(dictProp, Sollecitazioni, condition="negative")
+tension_plot_neg, list_tension_neg = tension(dictProp, updated_dict_soll, hi_plot, condition="negative")
 
 # using naive method
 # to convert lists to dictionary
@@ -581,21 +646,95 @@ df_tension_neg = pd.DataFrame.from_dict(tension_table_print_negative, orient = "
 st.write(df_tension_neg)
 
 ## COEFFICIENTI DI SICUREZZA SULLE AZIONI
-coeff = pd.read_excel('coefficienti.xlsx', index_col=0) 
-st.write(coeff)
+gamma = pd.read_excel('coefficienti.xlsx', "gamma", index_col=0) 
+psi = pd.read_excel('coefficienti.xlsx', "psi", index_col=0) 
+st.write(gamma)
+st.write(psi)
 #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
+
+## TENSIONI COMBINATE
+tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
+
+tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
+
+slu_plot = tension_plot(tension_slu, hi_plot)
+rara_plot = tension_plot(tension_rara, hi_plot)
+freq_plot = tension_plot(tension_frequente, hi_plot)
+qp_plot = tension_plot(tension_qp, hi_plot)
+
+with tab23:
+   st.plotly_chart(slu_plot, use_container_width=True, key= "tension_slu")
+with tab24:
+   st.plotly_chart(rara_plot, use_container_width=True, key= "tension_rara")
+with tab25:
+   st.plotly_chart(freq_plot, use_container_width=True, key= "tension_frequente")
+with tab26:
+   st.plotly_chart(qp_plot, use_container_width=True, key= "tension_qp")
+
 
 # Editable table using st.data_editor
 # Elenco delle verifiche in Markdown
 # Descrizione con Markdown e LaTeX
 
+st.markdown("""   
+            #### Verifiche
+            """)
+st.markdown("""   
+            ##### 1) Verifiche tensionali sugli elementi in acciaio (S.L.U.)
+            """)
+# Creiamo un dizionario con i dati delle verifiche
+
+dc1 = max(abs(tension_slu[2]), abs(tension_slu[3]))/338
+dc2 = max(abs(tension_slu[3]), abs(tension_slu[4]))/338
+dc3 = max(abs(tension_slu[4]), abs(tension_slu[5]))/338
+dc4 = max(abs(tension_slu[5]), abs(tension_slu[6]))/338
+dc5 = max(abs(tension_slu[6]), abs(tension_slu[7]))/338
+
+data = {
+    "Verifica": [
+        "piattabanda superiore",
+        "raddoppio superiore",
+        "anima",
+        "raddoppio inferiore",
+        "piattabanda inferiore",
+    ],
+    "sigma [MPa]": [max(abs(tension_slu[2]), abs(tension_slu[3])),
+              max(abs(tension_slu[3]), abs(tension_slu[4])),
+              max(abs(tension_slu[4]), abs(tension_slu[5])),
+              max(abs(tension_slu[5]), abs(tension_slu[6])),
+              max(abs(tension_slu[6]), abs(tension_slu[7])),
+    ],
+    "fyd [MPa]": [338,
+              338,
+              338,
+              338,
+              338,
+    ],
+
+    "D/C": [dc1,
+            dc2,
+            dc3,
+            dc4,
+            dc5,
+    ],
+
+    "Esito": [
+        "✅" if dc1<= 1 else "❌",
+        "✅" if dc2<= 1 else "❌",
+        "✅" if dc3<= 1 else "❌",
+        "✅" if dc4 <= 1 else "❌",
+        "✅" if dc5 <= 1.0 else "❌",
+    ]
+}
+
+# Creiamo un DataFrame con i dati
+df_ver1_slu = pd.DataFrame(data)
+# Mostriamo la tabella
+st.table(df_ver1_slu)
 
 st.markdown(r"""
-## Verifiche strutturali
-
-   1. **Verifica di resistenza:**  
-   La tensione è calcolata come segue:
-
+   La tensione è stata calcolata come segue:
+            
    $$
    \sigma(y) = \frac{N}{A} + \frac{M\cdot y}{I}
    $$
@@ -607,29 +746,188 @@ st.markdown(r"""
    - M: Momento flettenti 
    - I: Momento di inerzia
    - y: Coordinate del punto rispetto al baricentro della sezione.
-
-
-   2. **Verifica di stabilità:**
-      - Instabilità flesso-torsionale (LTB).
-      - Instabilità locale (instabilità delle anime o delle piattabande).
-
-   3. **Verifica a fatica:**
-      - Analisi del numero di cicli e tensioni alternate.
-      - Verifica della categoria di dettaglio (EN 1993-1-9).
-
-   4. **Verifica degli stati limite di esercizio (SLE):**
-      - Limitazione delle deformazioni.
-      - Controllo delle vibrazioni.
-      - Limitazione delle tensioni in esercizio.
-
-   5. **Verifica delle connessioni:**.
-      - verifica delle saldature.
-      - verifica pioli.
-
-
-## Normativa di riferimento
-- EN 1993-1-1: Progettazione delle strutture in acciaio - Regole generali.
-- EN 1993-1-8: Progettazione delle connessioni in acciaio.
-- EN 1993-1-9: Verifica a fatica delle strutture in acciaio.
+   
+   Per quanto rigurada la resistenza è stata considerata quella del materiale ad associato al singolo componente in acciaio
 """)
 
+
+st.markdown("""   
+            ##### 2) Verifica a taglio - instabilità dell'anima (S.L.U.)
+            """)
+
+
+def checkTaglio_Instabilita(d, tw, fy, a = None):
+   epsilon = np.sqrt(235/fy)
+   eta = 1.20
+
+   if a == None:
+      k_tau = 5.34
+   elif a/d < 1:
+      k_tau = 4 + 5.34/(a/d)**2
+   elif a/d >= 1:
+      k_tau = 5.34 + 4/(a/d)**2
+
+   if a == None:
+      lambda_w = (d)/(86.4*epsilon*tw)
+   else:
+      lambda_w = (d/tw)/(37.4*epsilon*np.sqrt(k_tau)) # snellezza adimensioanle dell'anima
+   
+   ## calcolo tab = chi*tau_rd 
+   if lambda_w >= 1.08 and a != None: #Non rigid end post
+      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+
+   elif lambda_w <= 1.08 and lambda_w >= 0.83/eta: #Non rigid end post end rigid end post
+      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+
+   elif lambda_w < 0.83/eta: #Non rigid end post end rigid end post
+      tau_ba = (eta)*(fy/np.sqrt(3))
+   
+   
+   Vba_rd = (d*tw*tau_ba)/(1.15*1000)
+
+   st.markdown(fr"""
+   Fattore di imbozzamanto per taglio: 
+   $$k_{{\tau}} = {k_tau:.2f} \, \text{{}}$$
+   """)
+
+   st.markdown(fr"""
+   Snellezza adimensionale dell'anima: 
+   $$\overline{{\lambda}}_{{w}} = {lambda_w:.2f} \, \text{{}}$$
+   """)
+
+   st.markdown(fr"""
+   Resistenza post-critica a taglio: 
+   $${{\tau}}_{{ba}} = {tau_ba:.2f} \, \text{{MPa}}$$
+   """)
+
+   st.markdown(fr"""
+   Resistenza a taglio: 
+   $$V_{{ba,Rd}} = {Vba_rd:.2f} \, \text{{KN}}$$
+   """)
+
+
+   return Vba_rd
+
+def Ved_list(Sollecitazioni, condition = "positive"):
+
+   posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
+   negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
+
+   ## G1+
+   if condition == "positive":
+      V_g1 = Sollecitazioni[posList[0]]["T"]
+   else:
+      V_g1 = Sollecitazioni[negList[0]]["T"]
+
+   #st.write(g1_sigma_plot)
+   
+   ## G2+
+   if condition == "positive":
+      V_g2 = Sollecitazioni[posList[1]]["T"]
+   else:
+      V_g2 = Sollecitazioni[negList[1]]["T"]
+
+   ## R+ (CONTROLLARE)
+   if condition == "positive":
+      V_r = Sollecitazioni[posList[2]]["T"]
+   else:
+      V_r = Sollecitazioni[negList[2]]["T"]
+
+   ## Mfat+ Fatica (CONTROLLARE)
+   if condition == "positive":
+      V_fat = Sollecitazioni[posList[3]]["T"]
+   else:
+      V_fat = Sollecitazioni[negList[3]]["T"]
+
+   ## MQ+ Mobili concentrati
+   if condition == "positive":
+      V_ts = Sollecitazioni[posList[4]]["T"]
+   else:
+      V_ts = Sollecitazioni[negList[4]]["T"]
+
+   ## Md+ Mobili distribuiti
+   if condition == "positive":
+      V_udl = Sollecitazioni[posList[5]]["T"]
+   else:
+      V_udl = Sollecitazioni[negList[5]]["T"]
+
+   ## Mf+ Mobili folla
+   if condition == "positive":
+      V_folla = Sollecitazioni[posList[6]]["T"]
+   else:
+      V_folla = Sollecitazioni[negList[6]]["T"]
+
+   ## T+ termica(CONTROLLARE)
+   if condition == "positive":
+      V_t = Sollecitazioni[posList[7]]["T"]
+   else:
+      V_t = Sollecitazioni[negList[7]]["T"]
+
+   ## C+ (CONTROLLARE)
+   if condition == "positive":
+      V_c = Sollecitazioni[posList[8]]["T"]
+   else:
+      V_c = Sollecitazioni[negList[8]]["T"]
+
+   ## V+ vento(CONTROLLARE)
+   if condition == "positive":
+      V_v = Sollecitazioni[posList[9]]["T"]
+   else:
+      V_v = Sollecitazioni[negList[9]]["T"]
+
+   V_list = [V_g1, V_g2, V_r, V_fat, V_ts, V_udl, V_folla, V_t, V_c, V_v]
+
+   return V_list
+
+#st.write(updated_dict_soll)
+Ved_pos = Ved_list(updated_dict_soll, condition = "positive")
+Ved_neg = Ved_list(updated_dict_soll, condition = "negative")
+
+Ved_slu_pos = combinazione(Ved_pos, category = "A1_sfav")
+Ved_slu_neg = combinazione(Ved_neg, category = "A1_sfav")
+
+taglio_anima = checkTaglio_Instabilita(hw, tw, 355)
+
+
+dc1 = Ved_slu_pos[0]/taglio_anima
+dc2 = Ved_slu_neg[0]/taglio_anima
+
+data = {
+    "Verifica": [
+        "Taglio positivo",
+        "Taglio negativo",
+    ],
+    "Ved [KN]": [Ved_slu_pos[0],
+            Ved_slu_neg[0],
+
+    ],
+    "Vrd [KN]": [taglio_anima,
+            taglio_anima,
+    ],
+
+    "D/C": [dc1,
+            dc2,
+    ],
+
+    "Esito": [
+        "✅" if dc1<= 1 else "❌",
+        "✅" if dc2<= 1 else "❌",
+    ]
+}
+
+# Creiamo un DataFrame con i dati
+df_ver2_slu = pd.DataFrame(data)
+# Mostriamo la tabella
+st.table(df_ver2_slu)
+
+st.markdown("""   
+            ##### 3) Verifica delle saldature dei piatti - (S.L.U.)
+            """)
+
+st.markdown("""   
+            ##### 4.1) Verifica dei pioli - (S.L.U.)
+            """)
+
+st.markdown("""   
+            ##### 4.2) Verifica dei pioli - (S.L.E.)
+            """)
