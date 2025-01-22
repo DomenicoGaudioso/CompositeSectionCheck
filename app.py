@@ -26,18 +26,6 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
 
 def combinazione(list_sigma, category = "A1_sfav"):
    
-   # list_sigma = [g1_sigma_plot,
-   #             g2_sigma_plot,
-   #             r_sigma_plot,
-   #             fat_sigma_plot,
-   #             ts_sigma_plot,
-   #             udl_sigma_plot,
-   #             folla_sigma_plot,
-   #             t_sigma_plot,
-   #             c_sigma_plot,
-   #             v_sigma_plot,
-   #             ]
-   
    path = "coefficienti.xlsx"
 
    gamma = pd.read_excel(path, "gamma", index_col=0)
