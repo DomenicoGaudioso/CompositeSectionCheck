@@ -295,20 +295,40 @@ hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
 Acls = gapCls*Bcls
 
-def Sx(Acls, dictProp, condition = "positive"): #calcolo del momento statico
+def Sx_slab(bcls, hcls,  dictProp, condition = "positive"): 
 
-   Sx_g1 = Acls * dictProp["g1"]["Pg"][1]
-   Sx_g2 = Acls * dictProp["g2"]["Pg"][1]
-   Sx_r = Acls * dictProp["r"]["Pg"][1]
-   Sx_fat = Acls * dictProp["mobili"]["Pg"][1]
-   Sx_ts = Acls * dictProp["mobili"]["Pg"][1]
-   Sx_udl = Acls * dictProp["mobili"]["Pg"][1]
-   Sx_folla = Acls * dictProp["mobili"]["Pg"][1]
-   Sx_t = Acls * dictProp["c"]["Pg"][1]
-   Sx_c = Acls * dictProp["c"]["Pg"][1]
-   Sx_v = Acls * dictProp["c"]["Pg"][1]
+   Acls = bcls*hcls
 
-   return
+   #calcolo del momento statico della soletta rispetto il baricentro della sezione composta
+   Sx_g1 = 0 # Acls *( dictProp["g1"]["Pg"][1]-hcls/2)
+   Sx_g2 = Acls *( dictProp["g2"]["Pg"][1]-hcls/2)
+   Sx_r = Acls *( dictProp["r"]["Pg"][1]-hcls/2)
+   Sx_fat = Acls *( dictProp["mobili"]["Pg"][1]-hcls/2)
+   Sx_ts = Acls *( dictProp["mobili"]["Pg"][1]-hcls/2)
+   Sx_udl = Acls *( dictProp["mobili"]["Pg"][1]-hcls/2)
+   Sx_folla = Acls *( dictProp["mobili"]["Pg"][1]-hcls/2)
+   Sx_t = Acls *( dictProp["c"]["Pg"][1]-hcls/2)
+   Sx_c = Acls *( dictProp["c"]["Pg"][1]-hcls/2)
+   Sx_v = Acls *( dictProp["c"]["Pg"][1]-hcls/2)
+
+   Sx_list = [Sx_g1, Sx_g2, Sx_r, Sx_fat, Sx_ts, Sx_udl, Sx_folla, Sx_t, Sx_c, Sx_v]
+
+   # calcolo del braccio della forza interna
+   z_g1 = 0 # Acls *( dictProp["g1"]["Pg"][1]-hcls/2)
+   z_g2 = Sx_g2
+   z_r = Sx_r
+   z_fat = Sx_fat
+   z_ts = Sx_ts
+   z_udl = Sx_udl
+   z_folla = Sx_folla
+   z_t = Acls *Sx_t
+   z_c = Acls *Sx_c
+   z_v = Acls *Sx_v
+
+   z_list = [z_g1, z_g2, z_r, z_fat, z_ts, z_udl, z_folla, z_t, z_c, z_v]
+
+   return Sx_list, z_list
+
 
 def tension(dictProp, Sollecitazioni, hi_plot, condition = "positive"):
 
@@ -813,80 +833,80 @@ def checkTaglio_Instabilita(d, tw, fy, a = None):
 
    return Vba_rd
 
-def Ved_list(Sollecitazioni, condition = "positive"):
+def Sollecitazione_list(Sollecitazioni, condition = "positive", cds = "T"):
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
    negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
 
    ## G1+
    if condition == "positive":
-      V_g1 = Sollecitazioni[posList[0]]["T"]
+      cds_g1 = Sollecitazioni[posList[0]][cds]
    else:
-      V_g1 = Sollecitazioni[negList[0]]["T"]
+      cds_g1 = Sollecitazioni[negList[0]][cds]
 
    #st.write(g1_sigma_plot)
    
    ## G2+
    if condition == "positive":
-      V_g2 = Sollecitazioni[posList[1]]["T"]
+      cds_g2 = Sollecitazioni[posList[1]][cds]
    else:
-      V_g2 = Sollecitazioni[negList[1]]["T"]
+      cds_g2 = Sollecitazioni[negList[1]][cds]
 
    ## R+ (CONTROLLARE)
    if condition == "positive":
-      V_r = Sollecitazioni[posList[2]]["T"]
+      cds_r = Sollecitazioni[posList[2]][cds]
    else:
-      V_r = Sollecitazioni[negList[2]]["T"]
+      cds_r = Sollecitazioni[negList[2]][cds]
 
    ## Mfat+ Fatica (CONTROLLARE)
    if condition == "positive":
-      V_fat = Sollecitazioni[posList[3]]["T"]
+      cds_fat = Sollecitazioni[posList[3]][cds]
    else:
-      V_fat = Sollecitazioni[negList[3]]["T"]
+      cds_fat = Sollecitazioni[negList[3]][cds]
 
    ## MQ+ Mobili concentrati
    if condition == "positive":
-      V_ts = Sollecitazioni[posList[4]]["T"]
+      cds_ts = Sollecitazioni[posList[4]][cds]
    else:
-      V_ts = Sollecitazioni[negList[4]]["T"]
+      cds_ts = Sollecitazioni[negList[4]][cds]
 
    ## Md+ Mobili distribuiti
    if condition == "positive":
-      V_udl = Sollecitazioni[posList[5]]["T"]
+      cds_udl = Sollecitazioni[posList[5]][cds]
    else:
-      V_udl = Sollecitazioni[negList[5]]["T"]
+      cds_udl = Sollecitazioni[negList[5]][cds]
 
    ## Mf+ Mobili folla
    if condition == "positive":
-      V_folla = Sollecitazioni[posList[6]]["T"]
+      cds_folla = Sollecitazioni[posList[6]][cds]
    else:
-      V_folla = Sollecitazioni[negList[6]]["T"]
+      cds_folla = Sollecitazioni[negList[6]][cds]
 
    ## T+ termica(CONTROLLARE)
    if condition == "positive":
-      V_t = Sollecitazioni[posList[7]]["T"]
+      cds_t = Sollecitazioni[posList[7]][cds]
    else:
-      V_t = Sollecitazioni[negList[7]]["T"]
+      cds_t = Sollecitazioni[negList[7]][cds]
 
    ## C+ (CONTROLLARE)
    if condition == "positive":
-      V_c = Sollecitazioni[posList[8]]["T"]
+      cds_c = Sollecitazioni[posList[8]][cds]
    else:
-      V_c = Sollecitazioni[negList[8]]["T"]
+      cds_c = Sollecitazioni[negList[8]][cds]
 
    ## V+ vento(CONTROLLARE)
    if condition == "positive":
-      V_v = Sollecitazioni[posList[9]]["T"]
+      cds_v = Sollecitazioni[posList[9]][cds]
    else:
-      V_v = Sollecitazioni[negList[9]]["T"]
+      cds_v = Sollecitazioni[negList[9]][cds]
 
-   V_list = [V_g1, V_g2, V_r, V_fat, V_ts, V_udl, V_folla, V_t, V_c, V_v]
+   cds_list = [cds_g1, cds_g2, cds_r, cds_fat, cds_ts, cds_udl, cds_folla, cds_t, cds_c, cds_v]
 
-   return V_list
+   return cds_list
 
 #st.write(updated_dict_soll)
-Ved_pos = Ved_list(updated_dict_soll, condition = "positive")
-Ved_neg = Ved_list(updated_dict_soll, condition = "negative")
+Ved_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "T")
+Ved_neg = Sollecitazione_list(updated_dict_soll, condition = "negative", cds= "T")
 
 Ved_slu_pos = combinazione(Ved_pos, category = "A1_sfav")
 Ved_slu_neg = combinazione(Ved_neg, category = "A1_sfav")
@@ -932,6 +952,23 @@ st.markdown("""
 st.markdown("""   
             ##### 4.1) Verifica dei pioli (S.L.U.)
             """)
+
+Med_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "Mf")
+Med_neg = Sollecitazione_list(updated_dict_soll, condition = "negative", cds= "Mf")
+
+
+Sx, zx = Sx_slab(Bcls, gapCls,  dictProp, condition = "positive")
+
+V_pioli_pos = np.array(Med_pos)/(np.array(zx)*1000)
+V_pioli_neg = np.array(Med_neg)/(np.array(zx)*1000)
+
+st.write(V_pioli_pos)
+st.write(V_pioli_neg)
+
+Vpioli_slu_pos = combinazione(V_pioli_pos, category = "A1_sfav")
+Vpioli_slu_neg = combinazione(V_pioli_neg, category = "A1_sfav")
+
+
 
 st.markdown("""   
             ##### 4.2) Verifica dei pioli (S.L.E.)
