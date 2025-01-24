@@ -293,6 +293,23 @@ hi = [0, gapCls, gapCls, gapCls+tbf, gapCls+tbf+tbrf, gapCls+tbf+tbrf+hw, gapCls
 
 hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
+Acls = gapCls*Bcls
+
+def Sx(Acls, dictProp, condition = "positive"): #calcolo del momento statico
+
+   Sx_g1 = Acls * dictProp["g1"]["Pg"][1]
+   Sx_g2 = Acls * dictProp["g2"]["Pg"][1]
+   Sx_r = Acls * dictProp["r"]["Pg"][1]
+   Sx_fat = Acls * dictProp["mobili"]["Pg"][1]
+   Sx_ts = Acls * dictProp["mobili"]["Pg"][1]
+   Sx_udl = Acls * dictProp["mobili"]["Pg"][1]
+   Sx_folla = Acls * dictProp["mobili"]["Pg"][1]
+   Sx_t = Acls * dictProp["c"]["Pg"][1]
+   Sx_c = Acls * dictProp["c"]["Pg"][1]
+   Sx_v = Acls * dictProp["c"]["Pg"][1]
+
+   return
+
 def tension(dictProp, Sollecitazioni, hi_plot, condition = "positive"):
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
