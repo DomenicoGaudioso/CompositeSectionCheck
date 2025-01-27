@@ -1045,8 +1045,16 @@ st.markdown("""
             ##### 3) Verifica delle saldature di composizione
             """)
 
+st.markdown(r"""
+Il calcolo elastico della forza sulle saldature è stato eseguito secondo la formula di Jourawski 
+   $$
+   V = T \cdot \frac{S}{I} = \frac{T}{z}
+   $$
+""")
+
+
 st.markdown("""   
-            ##### 4.1) Verifica dei pioli
+            ##### 4) Verifica dei pioli
             """)
 
 #Med_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "Mf")
