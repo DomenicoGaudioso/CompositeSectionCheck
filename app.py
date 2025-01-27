@@ -292,41 +292,30 @@ Isection = builtSection(listDict)
 def Sx_plate(listPlate, clsSection, dictProp, condition = "positive"): 
 
    #Fase 1 - Only steel
-   dictProp["g1"] = Isection
-
+   SectionComposite_g1 = builtSection(listPlate)
    #Fase 2 - G2 - t inf
-   SectionComposite_g2 = CompositeSection(Isection, clsSection, [b0, b1], ninf)
-   dictProp["g2"] = SectionComposite_g2
-
-
+   SectionComposite_g2 = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], ninf)
    #Fase 3 - R - ritiro
-   SectionComposite_r = CompositeSection(Isection, clsSection, [b0, b1], nr)
-   dictProp["r"] = SectionComposite_r 
-
+   SectionComposite_r = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], nr)
    #Fase 4 - C - cedimenti
-   SectionComposite_c = CompositeSection(Isection, clsSection, [b0, b1], nc)
-   dictProp["c"] = SectionComposite_c
-
+   SectionComposite_c = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], nc)
    #Fase 5 - Qm - mobili
-   SectionComposite_m = CompositeSection(Isection, clsSection, [b0, b1], n0)
-   dictProp["mobili"] = SectionComposite_m
-
+   SectionComposite_m = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], n0)
    #Fase 6 - Fessurato
    clsSection_F = RectangularSection(0.1, 0.1, [0, 0], material="C25/30")
-   SectionComposite_f = CompositeSection(Isection, clsSection_F, [b0, b1], 100000)
-   dictProp["fe"] = SectionComposite_f
+   SectionComposite_f = CompositeSection(SectionComposite_g1, clsSection_F, [b0, b1], 100000)
 
    #calcolo del momento statico della soletta rispetto il baricentro della sezione composta
-   Sx_g1 = 0.0 # Acls *( dictProp["g1"]["Pg"][1]-yg_pl)
-   Sx_g2 = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
-   Sx_r = Apl *( dictProp["r"]["Pg"][1]-yg_pl)
-   Sx_fat = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
-   Sx_ts = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
-   Sx_udl = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
-   Sx_folla = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
-   Sx_t = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
-   Sx_c = Apl *( dictProp["c"]["Pg"][1]-yg_pl)
-   Sx_v = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
+   Sx_g1 = SectionComposite_g1["A"]*( dictProp["g1"]["Pg"][1] - SectionComposite_g1["Pg"][1])
+   Sx_g2 = SectionComposite_g2["A"] *( dictProp["g2"]["Pg"][1] - SectionComposite_g2["Pg"][1])
+   Sx_r = SectionComposite_r["A"] *( dictProp["r"]["Pg"][1] - SectionComposite_r["Pg"][1])
+   Sx_fat = SectionComposite_m["A"] *( dictProp["mobili"]["Pg"][1] - SectionComposite_m["Pg"][1])
+   Sx_ts = SectionComposite_m["A"] *( dictProp["mobili"]["Pg"][1] - SectionComposite_m["Pg"][1])
+   Sx_udl = SectionComposite_m["A"] *( dictProp["mobili"]["Pg"][1] - SectionComposite_m["Pg"][1])
+   Sx_folla = SectionComposite_m["A"] *( dictProp["mobili"]["Pg"][1] - SectionComposite_m["Pg"][1])
+   Sx_t = SectionComposite_g2["A"] *( dictProp["g2"]["Pg"][1] - SectionComposite_g2["Pg"][1])
+   Sx_c = SectionComposite_c["A"] *( dictProp["c"]["Pg"][1] - SectionComposite_c["Pg"][1])
+   Sx_v = SectionComposite_g2["A"] *( dictProp["g2"]["Pg"][1] - SectionComposite_g2["Pg"][1])
 
    Sx_list = [Sx_g1, Sx_g2, Sx_r, Sx_fat, Sx_ts, Sx_udl, Sx_folla, Sx_t, Sx_c, Sx_v]
 
@@ -393,6 +382,21 @@ table["fe"] = { i :dictProp["fe"][i] for i in listParams}
 
 df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
 #st.write(df_section_prop)
+
+#momento statico per le saldature
+# saldature piattabanda superiore con raddoppio
+#st.write(listDict[0:1])
+Stau_s1 = Sx_plate(listDict[0:1], clsSection, dictProp, condition = "positive")
+#st.write(Stau_s1[1])
+# saldature raddoppio piattabanda superiore con anima
+Stau_s2 = Sx_plate(listDict[0:2], clsSection, dictProp, condition = "positive")
+#st.write(Stau_s2[1])
+# saldature raddoppio piattabanda inferiore con anima
+Stau_s3 = Sx_plate(listDict[0:3], clsSection, dictProp, condition = "positive")
+#st.write(Stau_s3[1])
+# saldature piattabanda inferiore con anima
+Stau_s4 = Sx_plate(listDict[0:4], clsSection, dictProp, condition = "positive")
+#st.write(Stau_s4[1])
 
 
 ## CALCOLO TENSIONI
