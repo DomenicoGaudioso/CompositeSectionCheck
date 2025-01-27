@@ -26,39 +26,61 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
 
 
 def Resistenza_Piolo(d, ft, fck, Ec, hsc, gamma_v= 1.25):
-    """
-    Calcola la resistenza ultima di calcolo a taglio (SLU) di un piolo.
+   """
+   Calcola la resistenza ultima di calcolo a taglio (SLU) di un piolo.
 
-    Parametri:
-    - d (float): Diametro del gambo del piolo (16 ≤ d ≤ 25 mm).
-    - ft (float): Resistenza a rottura dell'acciaio del piolo (≤ 500 MPa).
-    - fck (float): Resistenza caratteristica del calcestruzzo (MPa).
-    - Ec (float): Modulo elastico del calcestruzzo (MPa).
-    - hsc (float): Altezza del piolo dopo la saldatura.
-    - gamma_v (float): Fattore parziale di sicurezza del materiale (default: 1.25).
+   Parametri:
+   - d (float): Diametro del gambo del piolo (16 ≤ d ≤ 25 mm).
+   - ft (float): Resistenza a rottura dell'acciaio del piolo (≤ 500 MPa).
+   - fck (float): Resistenza caratteristica del calcestruzzo (MPa).
+   - Ec (float): Modulo elastico del calcestruzzo (MPa).
+   - hsc (float): Altezza del piolo dopo la saldatura.
+   - gamma_v (float): Fattore parziale di sicurezza del materiale (default: 1.25).
 
-    Restituisce:
-    - P_Rd (float): Resistenza ultima di calcolo a taglio (SLU).
-    """
-    if not (16 <= d <= 25):
-        raise ValueError("Il diametro d deve essere compreso tra 16 e 25 mm.")
-    if ft > 500:
-        raise ValueError("La resistenza a rottura dell'acciaio ft non deve superare 500 MPa.")
+   Restituisce:
+   - P_Rd (float): Resistenza ultima di calcolo a taglio (SLU).
+   """
+   if not (16 <= d <= 25):
+      raise ValueError("Il diametro d deve essere compreso tra 16 e 25 mm.")
+   if ft > 500:
+      raise ValueError("La resistenza a rottura dell'acciaio ft non deve superare 500 MPa.")
+   
+   # Calcolo del coefficiente α
+   if 3 <= hsc / d <= 4:
+      alpha = 0.2 * (hsc / d + 1)
+   elif hsc / d > 4:
+      alpha = 1.0
+   else:
+      raise ValueError("Il rapporto hsc/d deve essere ≥ 3.")
+   
+   # Calcolo dei due valori di resistenza
+   P_Rd_a = (0.8 * ft * (pi * d**2 / 4)) / (gamma_v*1000)
+   P_Rd_c = (0.29 * alpha * d**2 * sqrt(fck * Ec)) / (gamma_v*1000)
+
+   st.markdown(r""" 
+   Resistenza a taglio del gambo del bullone: 
+   $$
+   {P_{Rd,a} = \frac{0.8 \cdot f_t \cdot \left( \pi \cdot d^2 / 4 \right)}{\gamma_v}}
+   $$
+   """)
+
+   st.markdown(r"""
+   Resistenza a schiacciamento del calcestruzzo : 
+   $$
+   {P_{Rd,c} = \frac{0.29 \cdot \alpha \cdot d^2 \cdot \sqrt{f_{ck} \cdot E_c}}{\gamma_v}}
+   $$
+   """)
+
+   st.markdown(r"""
+   la resistenza dei connettori è determinata come il più piccolo dei valori sopra riportati : 
+   $$
+   {\min(P_{Rd,a}; P_{Rd,c})}
+   $$
+   """)
+
     
-    # Calcolo del coefficiente α
-    if 3 <= hsc / d <= 4:
-        alpha = 0.2 * (hsc / d + 1)
-    elif hsc / d > 4:
-        alpha = 1.0
-    else:
-        raise ValueError("Il rapporto hsc/d deve essere ≥ 3.")
-    
-    # Calcolo dei due valori di resistenza
-    P_Rd_a = (0.8 * ft * (pi * d**2 / 4)) / (gamma_v*1000)
-    P_Rd_c = (0.29 * alpha * d**2 * sqrt(fck * Ec)) / (gamma_v*1000)
-    
-    # Restituisce il valore minimo
-    return (P_Rd_a, P_Rd_c)
+   # Restituisce il valore minimo
+   return (P_Rd_a, P_Rd_c)
 
 def combinazione(list_sigma, category = "A1_sfav"):
    
@@ -355,15 +377,49 @@ def Sx_slab(bcls, hcls,  dictProp, condition = "positive"):
 
    # calcolo del braccio della forza interna
    z_g1 = 0.0 # Acls *( dictProp["g1"]["Pg"][1]-hcls/2)
-   z_g2 = dictProp["g2"]["Iy"]/Sx_g2
-   z_r = dictProp["r"]["Iy"]/Sx_r
-   z_fat = dictProp["mobili"]["Iy"]/Sx_fat
-   z_ts = dictProp["mobili"]["Iy"]/Sx_ts
-   z_udl = dictProp["mobili"]["Iy"]/Sx_udl
-   z_folla = dictProp["mobili"]["Iy"]/Sx_folla
-   z_t = dictProp["g2"]["Iy"]/Sx_t
-   z_c = dictProp["c"]["Iy"]/Sx_c
-   z_v = dictProp["g2"]["Iy"]/Sx_v
+   z_g2 = dictProp["g2"]["Iy"]/(Sx_g2/ninf)
+   z_r = dictProp["r"]["Iy"]/(Sx_r/nr)
+   z_fat = dictProp["mobili"]["Iy"]/(Sx_fat/n0)
+   z_ts = dictProp["mobili"]["Iy"]/(Sx_ts/n0)
+   z_udl = dictProp["mobili"]["Iy"]/(Sx_udl/n0)
+   z_folla = dictProp["mobili"]["Iy"]/(Sx_folla/n0)
+   z_t = dictProp["g2"]["Iy"]/(Sx_t/ninf)
+   z_c = dictProp["c"]["Iy"]/(Sx_c/nc)
+   z_v = dictProp["g2"]["Iy"]/(Sx_v/ninf)
+
+   z_list = [z_g1, z_g2, z_r, z_fat, z_ts, z_udl, z_folla, z_t, z_c, z_v]
+
+   return Sx_list, z_list
+
+def Sx_plate(b, t, yg_pl, dictProp, condition = "positive"): 
+
+   Apl = b*t
+
+   #calcolo del momento statico della soletta rispetto il baricentro della sezione composta
+   Sx_g1 = 0.0 # Acls *( dictProp["g1"]["Pg"][1]-yg_pl)
+   Sx_g2 = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
+   Sx_r = Apl *( dictProp["r"]["Pg"][1]-yg_pl)
+   Sx_fat = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
+   Sx_ts = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
+   Sx_udl = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
+   Sx_folla = Apl *( dictProp["mobili"]["Pg"][1]-yg_pl)
+   Sx_t = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
+   Sx_c = Apl *( dictProp["c"]["Pg"][1]-yg_pl)
+   Sx_v = Apl *( dictProp["g2"]["Pg"][1]-yg_pl)
+
+   Sx_list = [Sx_g1, Sx_g2, Sx_r, Sx_fat, Sx_ts, Sx_udl, Sx_folla, Sx_t, Sx_c, Sx_v]
+
+   # calcolo del braccio della forza interna
+   z_g1 = 0.0 # Acls *( dictProp["g1"]["Pg"][1]-yg_pl)
+   z_g2 = dictProp["g2"]["Iy"]/(Sx_g2)
+   z_r = dictProp["r"]["Iy"]/(Sx_r)
+   z_fat = dictProp["mobili"]["Iy"]/(Sx_fat)
+   z_ts = dictProp["mobili"]["Iy"]/(Sx_ts)
+   z_udl = dictProp["mobili"]["Iy"]/(Sx_udl)
+   z_folla = dictProp["mobili"]["Iy"]/(Sx_folla)
+   z_t = dictProp["g2"]["Iy"]/(Sx_t)
+   z_c = dictProp["c"]["Iy"]/(Sx_c)
+   z_v = dictProp["g2"]["Iy"]/(Sx_v)
 
    z_list = [z_g1, z_g2, z_r, z_fat, z_ts, z_udl, z_folla, z_t, z_c, z_v]
 
@@ -986,16 +1042,22 @@ df_ver2_slu = pd.DataFrame(data)
 st.table(df_ver2_slu)
 
 st.markdown("""   
-            ##### 3) Verifica delle saldature di composizione (S.L.U.)
+            ##### 3) Verifica delle saldature di composizione
             """)
 
 st.markdown("""   
-            ##### 4.1) Verifica dei pioli (S.L.U.)
+            ##### 4.1) Verifica dei pioli
             """)
 
 #Med_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "Mf")
 #Med_neg = Sollecitazione_list(updated_dict_soll, condition = "negative", cds= "Mf")
 
+st.markdown(r"""
+Il calcolo elastico della forza di scorrimento è stato eseguito secondo la formula di Jourawski 
+   $$
+   V = T \cdot \frac{S}{I} = \frac{T}{z}
+   $$
+""")
 
 Sx, zx = Sx_slab(Bcls, gapCls,  dictProp, condition = "positive")
 
@@ -1006,8 +1068,6 @@ V_pioli_neg[0]= 0.0
 
 Vpioli_comb_pos = combinazione(list(V_pioli_pos), category = "A1_sfav")
 Vpioli_comb_neg = combinazione(list(V_pioli_neg), category = "A1_sfav")
-st.write(Vpioli_comb_pos)
-st.write(Vpioli_comb_neg)
 
 # Esempio di utilizzo
 d = 16  # mm
@@ -1021,16 +1081,54 @@ s_pioli = 200 #passo pioli in un metro
 nPioli_tot = (1000/s_pioli)*nfp
 
 resPiolo = np.min(Resistenza_Piolo(d, ft, fck, Ec, hsc)).real
-st.write(resPiolo)
+
+st.markdown(fr"""
+La resistenza del singolo piolo è pari a:  {resPiolo:.2f} kN
+""")
+
 
 resTotalePioli = resPiolo*nPioli_tot
-st.write(resTotalePioli)
+resPioli_sle = 0.6*resTotalePioli
+
+dc_pioli_pos_slu = np.abs(Vpioli_comb_pos[0]/resTotalePioli)
+dc_pioli_neg_slu = np.abs(Vpioli_comb_neg[0]/resTotalePioli)
+dc_pioli_pos_sle = np.abs(Vpioli_comb_pos[1]/(resPioli_sle))
+dc_pioli_neg_sle = np.abs(Vpioli_comb_neg[1]/(resPioli_sle))
 
 ## VERIFICA ALLO SLU
-dc_pioli_slu = np.abs(Vpioli_comb_pos[0]/resTotalePioli)
-st.write(dc_pioli_slu)
+data = {
+    "Verifica": [
+        "Taglio positivo (SLU)",
+        "Taglio negativo (SLU)",
+        "Taglio positivo (SLE)",
+        "Taglio negativo (SLE)",
+    ],
+    "Ved [KN]": [Vpioli_comb_pos[0],
+            Vpioli_comb_neg[0],
+            Vpioli_comb_pos[1],
+            Vpioli_comb_neg[1],
+    ],
+    "Vrd [KN]": [resTotalePioli,
+            resTotalePioli,
+            resPioli_sle,
+            resPioli_sle
+    ],
 
+    "D/C": [dc_pioli_pos_slu ,
+            dc_pioli_neg_slu ,
+            dc_pioli_pos_sle ,
+            dc_pioli_neg_sle ,
+    ],
 
-st.markdown("""   
-            ##### 4.2) Verifica dei pioli (S.L.E.)
-            """)
+    "Esito": [
+        "✅" if dc_pioli_pos_slu <= 1 else "❌",
+        "✅" if dc_pioli_neg_slu <= 1 else "❌",
+        "✅" if dc_pioli_pos_sle <= 1 else "❌",
+        "✅" if dc_pioli_neg_sle <= 1 else "❌",
+    ]
+}
+
+# Creiamo un DataFrame con i dati
+df_pioli = pd.DataFrame(data)
+# Mostriamo la tabella
+st.table(df_pioli)
