@@ -826,6 +826,7 @@ st.write(psi)
 
 ## TENSIONI COMBINATE
 tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
+tension_slu_neg, tension_rara, tension_frequente, tension_qp = combinazione(list_tension_neg)
 
 tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
@@ -1309,3 +1310,38 @@ st.table(df_pioli)
 st.markdown("""   
             ##### 6) Verifiche dettagli a fatica
             """)
+
+delta_sigma = (np.array(list_tension[3]) - np.array(list_tension_neg[3]))
+delta_tau_cls = (V_pioli_pos[3] - V_pioli_neg[3])
+delta_tau1 = (V_s1_pos[3] - V_s1_neg[3])
+delta_tau2 = (V_s2_pos[3] - V_s2_neg[3])
+delta_tau3 = (V_s3_pos[3] - V_s3_neg[3])
+delta_tau4 = (V_s4_pos[3] - V_s4_neg[3])
+
+## VERIFICA ALLO SLU
+data = {
+    "Punto": [
+        "Estradosso soletta",
+        "Intradosso soletta",
+        "Estradosso piattabanda superiore",
+        "Estradosso raddoppio piattabanda superiore",
+        "Estradosso anima",
+        "Istradosso anima",
+        "Intradosso raddoppio piattabanda inferiore",
+        "Intradosso piattabanda inferiore",
+    ],
+    "Delta [MPa]": delta_sigma[0:8],
+    "scorrimento [KN]": [0.0, 
+                         delta_tau_cls, 
+                         delta_tau1, 
+                         delta_tau2, 
+                         delta_tau2, 
+                         delta_tau3, 
+                         delta_tau3, 
+                         delta_tau4],
+}
+
+# Creiamo un DataFrame con i dati
+df_pioli = pd.DataFrame(data)
+# Mostriamo la tabella
+st.table(df_pioli)
