@@ -360,7 +360,7 @@ def Sx_plate(listPlate, clsSection, dictProp, condition = "positive"):
    Sx_list = [Sx_g1, Sx_g2, Sx_r, Sx_fat, Sx_ts, Sx_udl, Sx_folla, Sx_t, Sx_c, Sx_v]
 
    # calcolo del braccio della forza interna
-   z_g1 = 0.0 # Acls *( dictProp["g1"]["Pg"][1]-yg_pl)
+   z_g1 = dictProp["g1"]["Iy"]/(Sx_g1) # Acls *( dictProp["g1"]["Pg"][1]-yg_pl)
    z_g2 = dictProp["g2"]["Iy"]/(Sx_g2)
    z_r = dictProp["r"]["Iy"]/(Sx_r)
    z_fat = dictProp["mobili"]["Iy"]/(Sx_fat)
@@ -1150,6 +1150,16 @@ Vs4_comb_neg = combinazione(list(V_s4_neg), category = "A1_sfav")
 a = 6 # gola 6 mm
 res_cordoni = resistenza_saldatura_EC("S235", a, gamma_m2=1.25)*2/1000
 
+ds1_sald_pos = Vs1_comb_pos[0]/res_cordoni
+ds1_sald_neg = Vs1_comb_neg[0]/res_cordoni
+ds2_sald_pos = Vs2_comb_pos[0]/res_cordoni
+ds2_sald_neg = Vs2_comb_neg[0]/res_cordoni
+ds3_sald_pos = Vs3_comb_pos[0]/res_cordoni
+ds3_sald_neg = Vs3_comb_neg[0]/res_cordoni
+ds4_sald_pos = Vs4_comb_pos[0]/res_cordoni
+ds4_sald_neg = Vs4_comb_neg[0]/res_cordoni
+
+
 ## VERIFICA ALLO SLU
 data = {
     "Verifica": [
@@ -1181,25 +1191,24 @@ data = {
             res_cordoni,
     ],
 
-    "D/C": [1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1,
+    "D/C": [ds1_sald_pos,
+            ds1_sald_neg,
+            ds2_sald_pos,
+            ds2_sald_neg,
+            ds3_sald_pos,
+            ds3_sald_neg,
+            ds4_sald_pos,
+            ds4_sald_neg,
     ],
 
-    "Esito": [
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
-        "✅" if 1 <= 1 else "❌",
+    "Esito": ["✅" if ds1_sald_pos <= 1 else "❌",
+        "✅" if ds1_sald_neg <= 1 else "❌",
+        "✅" if ds2_sald_pos <= 1 else "❌",
+        "✅" if ds2_sald_neg <= 1 else "❌",
+        "✅" if ds3_sald_pos <= 1 else "❌",
+        "✅" if ds3_sald_neg <= 1 else "❌",
+        "✅" if ds4_sald_pos <= 1 else "❌",
+        "✅" if ds4_sald_neg <= 1 else "❌",
     ]
 }
 
