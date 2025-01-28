@@ -852,7 +852,11 @@ st.markdown("""
             #### Verifiche
             """)
 st.markdown("""   
-            ##### 1) Verifiche tensionali sugli elementi in acciaio (S.L.U.)
+            ##### 1) Calcolo della classe 
+            """)
+
+st.markdown("""   
+            ##### 2) Verifiche tensionali sugli elementi in acciaio (S.L.U.)
             """)
 # Creiamo un dizionario con i dati delle verifiche
 
@@ -924,7 +928,7 @@ st.markdown(r"""
 
 
 st.markdown("""   
-            ##### 2) Verifica a taglio - instabilità dell'anima (S.L.U.)
+            ##### 3) Verifica a taglio - instabilità dell'anima (S.L.U.)
             """)
 
 
@@ -1093,7 +1097,7 @@ df_ver2_slu = pd.DataFrame(data)
 st.table(df_ver2_slu)
 
 st.markdown("""   
-            ##### 3) Verifica delle saldature di composizione
+            ##### 4) Verifica delle saldature di composizione
             """)
 
 st.markdown(r"""
@@ -1206,7 +1210,7 @@ st.table(df_sald)
 
 
 st.markdown("""   
-            ##### 4) Verifica dei pioli
+            ##### 5) Verifica dei pioli
             """)
 
 #Med_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "Mf")
@@ -1292,3 +1296,7 @@ data = {
 df_pioli = pd.DataFrame(data)
 # Mostriamo la tabella
 st.table(df_pioli)
+
+st.markdown("""   
+            ##### 6) Verifica delle saldature di composizione
+            """)
