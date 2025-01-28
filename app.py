@@ -1298,5 +1298,5 @@ df_pioli = pd.DataFrame(data)
 st.table(df_pioli)
 
 st.markdown("""   
-            ##### 6) Verifica delle saldature di composizione
+            ##### 6) Verifiche dettagli a fatica
             """)
