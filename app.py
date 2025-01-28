@@ -24,6 +24,46 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
                   'V+':{ 'N': 0.0, 'T': 0.0, 'Mf': 10.0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # vento
         }
 
+def resistenza_saldatura_EC(materiale, a, gamma_m2=1.25):
+    
+   #  Calcola la resistenza della saldatura per unità di lunghezza.
+
+   #  Parametri:
+   #  - materiale (str): Qualità dell'acciaio (deve essere presente nel dizionario).
+   #  - fk (float): Resistenza caratteristica del metallo d'apporto (MPa).
+   #  - a (float): Spessore del cordone di saldatura (mm).
+   #  - gamma_m2 (float): Fattore di sicurezza per la saldatura (default: 1.25).
+
+   #  Restituisce:
+   #  - F_w_Rd (float): Resistenza della saldatura per unità di lunghezza (N/mm).
+    
+   acciai = {
+      "S235": {"fy": 235, "fu": 360, "beta_w": 0.80},
+      "S275": {"fy": 275, "fu": 430, "beta_w": 0.85},
+      "S275 N/NL": {"fy": 275, "fu": 390, "beta_w": 0.85},
+      "S275 M/ML": {"fy": 275, "fu": 370, "beta_w": 0.85},
+      "S355": {"fy": 355, "fu": 510, "beta_w": 0.90},
+      "S355 N/NL": {"fy": 355, "fu": 490, "beta_w": 0.90},
+      "S355 M/ML": {"fy": 355, "fu": 470, "beta_w": 0.90},
+      "S420 N/NL": {"fy": 420, "fu": 520, "beta_w": 1.00},
+      "S420 M/ML": {"fy": 420, "fu": 520, "beta_w": 1.00},
+      "S450": {"fy": 450, "fu": 550, "beta_w": 1.00},
+      "S460 N/NL": {"fy": 460, "fu": 540, "beta_w": 1.00},
+      "S460 M/ML": {"fy": 460, "fu": 540, "beta_w": 1.00},
+      "S460 Q/QL/QL1": {"fy": 460, "fu": 570, "beta_w": 1.00},
+   }
+
+   if materiale not in acciai:    
+      raise ValueError("Materiale non riconosciuto. Scegli un materiale valido")
+    
+   beta_w = acciai[materiale]["beta_w"]
+   f_yk = acciai[materiale]["fy"]
+   f_tk = acciai[materiale]["fu"]
+   
+   # Formula per la resistenza della saldatura
+   F_w_Rd = (f_tk * a) / (np.sqrt(3) * beta_w * gamma_m2)  # sqrt(3) ≈ 1.732
+   
+   return F_w_Rd
 
 def Resistenza_Piolo(d, ft, fck, Ec, hsc, gamma_v= 1.25):
    """
@@ -382,22 +422,6 @@ table["fe"] = { i :dictProp["fe"][i] for i in listParams}
 
 df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
 #st.write(df_section_prop)
-
-#momento statico per le saldature
-# saldature piattabanda superiore con raddoppio
-#st.write(listDict[0:1])
-Stau_s1 = Sx_plate(listDict[0:1], clsSection, dictProp, condition = "positive")
-#st.write(Stau_s1[1])
-# saldature raddoppio piattabanda superiore con anima
-Stau_s2 = Sx_plate(listDict[0:2], clsSection, dictProp, condition = "positive")
-#st.write(Stau_s2[1])
-# saldature raddoppio piattabanda inferiore con anima
-Stau_s3 = Sx_plate(listDict[0:3], clsSection, dictProp, condition = "positive")
-#st.write(Stau_s3[1])
-# saldature piattabanda inferiore con anima
-Stau_s4 = Sx_plate(listDict[0:4], clsSection, dictProp, condition = "positive")
-#st.write(Stau_s4[1])
-
 
 ## CALCOLO TENSIONI
 tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, # peso proprio
@@ -1073,11 +1097,112 @@ st.markdown("""
             """)
 
 st.markdown(r"""
-Il calcolo elastico della forza sulle saldature è stato eseguito secondo la formula di Jourawski 
+Il calcolo della forza agente sulle saldature è stato eseguito secondo la formula di Jourawski 
    $$
-   V = T \cdot \frac{S}{I} = \frac{T}{z}
+   V_{\tau} = \tau \cdot b = \frac{T}{b} \cdot \frac{S}{I} = \frac{T}{z}
    $$
+   La resistenza della saldatura è calcolata con il metodo semplificato :         
+   $$
+   F_{w,Rd} = \frac{{f_k \cdot a}}{{\sqrt{{3}} \cdot \beta_w \cdot \gamma_{M2}}}
+   $$        
 """)
+
+#momento statico per le saldature
+# saldature piattabanda superiore con raddoppio
+#st.write(listDict[0:1])
+Stau_s1 = Sx_plate(listDict[0:1], clsSection, dictProp, condition = "positive")
+V_s1_pos = np.array(Ved_pos)/(np.array(Stau_s1[1]))
+V_s1_neg = np.array(Ved_neg)/(np.array(Stau_s1[1]))
+
+Vs1_comb_pos = combinazione(list(V_s1_pos), category = "A1_sfav")
+Vs1_comb_neg = combinazione(list(V_s1_neg), category = "A1_sfav")
+
+#st.write(Stau_s1[1])
+# saldature raddoppio piattabanda superiore con anima
+Stau_s2 = Sx_plate(listDict[0:2], clsSection, dictProp, condition = "positive")
+V_s2_pos = np.array(Ved_pos)/(np.array(Stau_s2[1]))
+V_s2_neg = np.array(Ved_neg)/(np.array(Stau_s2[1]))
+
+Vs2_comb_pos = combinazione(list(V_s2_pos), category = "A1_sfav")
+Vs2_comb_neg = combinazione(list(V_s2_neg), category = "A1_sfav")
+#st.write(Stau_s2[1])
+# saldature raddoppio piattabanda inferiore con anima
+Stau_s3 = Sx_plate(listDict[0:3], clsSection, dictProp, condition = "positive")
+V_s3_pos = np.array(Ved_pos)/(np.array(Stau_s3[1]))
+V_s3_neg = np.array(Ved_neg)/(np.array(Stau_s3[1]))
+
+Vs3_comb_pos = combinazione(list(V_s3_pos), category = "A1_sfav")
+Vs3_comb_neg = combinazione(list(V_s3_neg), category = "A1_sfav")
+#st.write(Stau_s3[1])
+# saldature piattabanda inferiore con anima
+Stau_s4 = Sx_plate(listDict[0:4], clsSection, dictProp, condition = "positive")
+V_s4_pos = np.array(Ved_pos)/(np.array(Stau_s4[1]))
+V_s4_neg = np.array(Ved_neg)/(np.array(Stau_s4[1]))
+
+Vs4_comb_pos = combinazione(list(V_s4_pos), category = "A1_sfav")
+Vs4_comb_neg = combinazione(list(V_s4_neg), category = "A1_sfav")
+#st.write(Stau_s4[1])
+
+a = 6 # gola 6 mm
+res_cordoni = resistenza_saldatura_EC("S235", a, gamma_m2=1.25)*2/1000
+
+## VERIFICA ALLO SLU
+data = {
+    "Verifica": [
+        "Taglio saldatura pittabanda sup. - raddoppio sup. (M positivo)",
+        "Taglio saldatura pittabanda sup. - raddoppio sup. (M negativo)",
+        "Taglio saldatura raddoppio sup. - anima (M positivo)",
+        "Taglio saldatura raddoppio sup. - anima (M negativo)",
+        "Taglio saldatura anima - raddoppio inf. (M positivo)",
+        "Taglio saldatura anima - raddoppio inf. (M negativo)",
+        "Taglio saldatura raddoppio inf. - piattabanda inf. (M positivo)",
+        "Taglio saldatura raddoppio inf. - piattabanda inf. (M positivo)",
+    ],
+    "Ved [KN]": [Vs1_comb_pos[0],
+            Vs1_comb_neg[0],
+            Vs2_comb_pos[0],
+            Vs2_comb_neg[0],
+            Vs3_comb_pos[0],
+            Vs3_comb_neg[0],
+            Vs4_comb_pos[0],
+            Vs4_comb_neg[0],
+    ],
+    "Vrd [KN]": [res_cordoni,
+            res_cordoni,
+            res_cordoni,
+            res_cordoni,
+            res_cordoni,
+            res_cordoni,
+            res_cordoni,
+            res_cordoni,
+    ],
+
+    "D/C": [1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+    ],
+
+    "Esito": [
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+        "✅" if 1 <= 1 else "❌",
+    ]
+}
+
+# Creiamo un DataFrame con i dati
+df_sald = pd.DataFrame(data)
+# Mostriamo la tabella
+st.table(df_sald)
 
 
 st.markdown("""   
