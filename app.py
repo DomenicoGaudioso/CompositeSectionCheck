@@ -1331,17 +1331,53 @@ data = {
         "Intradosso piattabanda inferiore",
     ],
     "Delta [MPa]": delta_sigma[0:8],
-    "scorrimento [KN]": [0.0, 
-                         delta_tau_cls, 
-                         delta_tau1, 
-                         delta_tau2, 
-                         delta_tau2, 
-                         delta_tau3, 
-                         delta_tau3, 
-                         delta_tau4],
+    "scorrimento [KN]": [
+        0.0,
+        delta_tau_cls,
+        delta_tau1,
+        delta_tau2,
+        delta_tau2,
+        delta_tau3,
+        delta_tau3,
+        delta_tau4,
+    ],
+    "Dettaglio": [
+        [71, 81],
+        [81],
+        [81],
+        [81],
+        [81],
+        [81],
+        [81],
+        [81],
+    ],
 }
 
-# Creiamo un DataFrame con i dati
-df_pioli = pd.DataFrame(data)
-# Mostriamo la tabella
-st.table(df_pioli)
+# Creazione del dataframe
+df = pd.DataFrame(data)
+
+# Opzioni disponibili per i dettagli
+dettagli_disponibili = [71, 80, 90, 100, 112, 125, 160]
+
+# Lista per salvare i dettagli aggiornati
+dettagli_aggiornati = []
+
+for index, row in df.iterrows():
+    # Widget multiselect per ogni riga
+    dettagli_selezionati = st.multiselect(
+        f"Seleziona i dettagli per {row['Punto']}",
+        options=dettagli_disponibili,
+        default=[],
+        key=f"multiselect_{index}",
+    )
+    dettagli_aggiornati.append(dettagli_selezionati)
+
+# Aggiornamento del dataframe con i dettagli selezionati
+df["Dettaglio"] = dettagli_aggiornati
+
+# Visualizzazione del dataframe aggiornato
+st.write("Dataframe aggiornato:")
+st.dataframe(df)
+
+
+###
