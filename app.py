@@ -44,7 +44,7 @@ txtName2 = " **🚄 :rainbow[𝒻𝑒𝓂 DTO]**  -- :red[**F**]:gray[inite]  :o
             
 st.markdown(txtName2)
 selected3 = option_menu(None, ["Info", "Upload", "SetPar", "Sensy", 'Optm', "Damg",
-                               "MovingLA", "WNoise", "Quake", "Other"],
+                               "MovingLA", "WNoise", "Quake", "Other"]),
 
 input_data = {}  
 
