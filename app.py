@@ -8,7 +8,43 @@ from scipy.spatial import ConvexHull
 from SGMPy_material import *
 from SGMPy_section_v01 import *
 import plotly.graph_objs as go
+from streamlit_option_menu import option_menu
 
+
+st.set_page_config(page_icon="🚄", page_title=":rainbow[𝒻𝑒𝓂 DTO]  ", layout="wide")
+
+
+with st.sidebar:
+   st.title(' 🚄 :rainbow[𝒻𝑒𝓂 DTO]  ') #💻🌈🖱️
+   txtName2 = ":red[**F**]:gray[inite]  :orange[**E**]:gray[lement] :green[**M**]:gray[odel]  :gray[_for_] :green[**D**]:gray[igital]  :blue[**T**]:gray[win]  :gray[_with_] :violet[**O**]:gray[penSees]"
+               
+   st.markdown(txtName2)
+   imageName = ['Screenshot 2025-01-28 182905.png', "Screenshot 2025-01-28 182928.png"]
+   isertImage(imageName[0], width = 210)
+
+
+   # Utilizza st.markdown per inserire i link
+   st.markdown("## Contacts")
+   st.write("Name: Domenico")
+   st.write("Surname: Gaudioso")
+   st.write("📧 dome.gaudioso@gmail.com")
+   st.markdown("📱 [LinkedIn]({'https://www.linkedin.com/in/il_tuo_profilo_linkedin'})", unsafe_allow_html=True)
+   st.markdown("💻 [GitHub]({'https://github.com/DomenicoGaudioso'})", unsafe_allow_html=True)
+
+   st.markdown("## About")
+   # Link di Streamlit
+   st.markdown(f"[Streamlit]({'https://www.streamlit.io/'})", unsafe_allow_html=True)
+   # Link di SciPy
+   st.markdown(f"[SciPy]({'https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.differential_evolution.html'})", unsafe_allow_html=True)
+   # Link di Sobol Sequences (sobol_seq su PyPI)
+   st.markdown(f"[SALib]({'https://salib.readthedocs.io/en/latest/'})", unsafe_allow_html=True)
+
+
+txtName2 = " **🚄 :rainbow[𝒻𝑒𝓂 DTO]**  -- :red[**F**]:gray[inite]  :orange[**E**]:gray[lement] :green[**M**]:gray[odel]  :gray[_for_] :green[**D**]:gray[igital]  :blue[**T**]:gray[win]  :gray[_with_] :violet[**O**]:gray[penSees]"
+            
+st.markdown(txtName2)
+selected3 = option_menu(None, ["Info", "Upload", "SetPar", "Sensy", 'Optm', "Damg",
+                               "MovingLA", "WNoise", "Quake", "Other"],
 
 input_data = {}  
 

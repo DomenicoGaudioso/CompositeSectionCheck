@@ -6,3 +6,5 @@ openpyxl
 matplotlib
 shapely
 scipy
+streamlit_toggle
+streamlit_option_menu
