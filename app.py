@@ -40,9 +40,9 @@ with st.sidebar:
 txtName2 = " **⛏️ :rainbow[ISCT]**  -- :red[**I**]:gray[-]  :orange[**S**]:gray[ection] :green[**C**]:gray[omposite] :green[**T**]:gray[ool]"
             
 st.markdown(txtName2)
-selected3 = option_menu(None, ["Documentazione", " Sollecitazioni", "Sezione", "Tensioni", "Verifiche"],
+selected3 = option_menu(None, ["Documentazione", "Sollecitazioni", "Sezione", "Tensioni", "Verifiche"],
                          
-    icons=['book-half', 'cloud-arrow-up-fill', "magic", "clipboard2-pulse-fill"], 
+    icons=['book-half', 'cloud-arrow-up-fill', "magic", "triangle", "clipboard2-pulse-fill"], 
     menu_icon="cast", default_index=0, orientation="horizontal"
 )
 
@@ -50,7 +50,10 @@ input_data = {}
 
 
 if selected3 == "Documentazione":
-   st.write("WIP")
+
+   st.title("Documentazione in WIP")
+
+
 
 Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
                   'G2+':{'N': 0.0, 'T': 0.0, 'Mf': 7.55, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
@@ -63,12 +66,12 @@ Sollecitazioni = {'G1+':{'N': -0.0, 'T': 0.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N
                   'C+':{ 'N': 0.0, 'T': 0.0, 'Mf': 10.0, 'Mt': 0.0}, 'C-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # cedimenti
                   'V+':{ 'N': 0.0, 'T': 0.0, 'Mf': 10.0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # vento
       }
+
+# Convert dictionary to DataFrame
+df = pd.DataFrame(Sollecitazioni).T.reset_index()
+df.rename(columns={'index': 'Tipo'}, inplace=True)
    
 if selected3 == "Sollecitazioni":
-
-   # Convert dictionary to DataFrame
-   df = pd.DataFrame(Sollecitazioni).T.reset_index()
-   df.rename(columns={'index': 'Tipo'}, inplace=True)
 
    # Editable table using st.data_editor
    st.title("Edit Sollecitazioni")
@@ -84,6 +87,8 @@ if selected3 == "Sollecitazioni":
    # Save changes and convert back to dictionary
    updated_dict_soll = edited_df_soll.set_index('Tipo').T.to_dict()
    st.json(updated_dict_soll, expanded=False)
+
+   st.session_state["dict_soll"] = updated_dict_soll
    
 
 input_section = { 'l': [12*1000], #lunghezza del concio
@@ -136,8 +141,7 @@ if selected3 == "Sezione":
    # convert back to dictionary
    updated_dict_section = edited_df_sec.to_dict()
    st.json(updated_dict_section , expanded=False)
-
-
+   st.session_state["input_section"] = updated_dict_section
 
    ##INPUT
    # Extract updated values from the table
@@ -171,6 +175,7 @@ if selected3 == "Sezione":
 
 
 
+
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
    clsSection = RectangularSection(Bcls, Hcls, [0, 0], material="C25/30")
    pointG0 = [[-int_sup*i, 35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, 35] for i in range(1, int(Bcls*0.5/100))]
@@ -190,6 +195,13 @@ if selected3 == "Sezione":
    wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material="S355", cl4Dict=None)
    rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material="S355")
    PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material="S355")
+
+   st.session_state["gapCls"] = gapCls
+   st.session_state["PlateSup"] = PlateSup
+   st.session_state["rPlateSup"] = rPlateSup
+   st.session_state["wPlate1"] = wPlate1
+   st.session_state["rPlateInf"] = rPlateInf
+   st.session_state["PlateInf"] = PlateInf
 
    # if tbf == 0 or tw == 0 or tbf_inf == 0:
    #    st.warning("parametri essenziali non settati")
@@ -249,6 +261,8 @@ if selected3 == "Sezione":
    SectionComposite_f = CompositeSection(Isection, clsSection_F, [b0, b1], 100000)
    dictProp["fe"] = SectionComposite_f
 
+   st.session_state["dictProp"] = dictProp
+
    # per print table
    table["g1"] = { i :dictProp["g1"][i] for i in listParams}
    table["g2"] = { i :dictProp["g2"][i] for i in listParams}
@@ -258,31 +272,49 @@ if selected3 == "Sezione":
    table["fe"] = { i :dictProp["fe"][i] for i in listParams}
 
    df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
-   #st.write(df_section_prop)
+   st.write(df_section_prop)
+
+   hi = [0, 
+      st.session_state["gapCls"], 
+      st.session_state["gapCls"], 
+      st.session_state["gapCls"]+tbf, 
+      st.session_state["gapCls"]+tbf+tbrf, 
+      st.session_state["gapCls"]+tbf+tbrf+hw, 
+      st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf, 
+      st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf+tbf_inf]
+   
+   hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
+   st.session_state["hi_plot"] = hi_plot
 
 ## CALCOLO TENSIONI
-tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, # peso proprio
-                  'G2+':{'sigma': 0.0, 'tau': 0.0}, 'G2-':{'sigma': 0.0, 'tau': 0.0}, # permanenti portati
-                  'R+':{'sigma': 0.0, 'tau': 0.0}, 'R-':{'sigma': 0.0, 'tau': 0.0},  # ritiro
-                  'Mfat+':{'sigma': 0.0, 'tau': 0.0}, 'Mfat-':{'sigma': 0.0, 'tau': 0.0}, # fatica
-                  'MQ+':{'sigma': 0.0, 'tau': 0.0}, 'MQ-':{'sigma': 0.0, 'tau': 0.0}, # mobili concentrati
-                  'Md+':{'sigma': 0.0, 'tau': 0.0}, 'Md-':{ 'sigma': 0.0, 'tau': 0.0}, # mobili distribuiti
-                  'Mf+':{ 'sigma': 0.0, 'tau': 0.0}, 'Mf-':{ 'sigma': 0.0, 'tau': 0.0}, # folla
-                  'T+':{ 'sigma': 0.0, 'tau': 0.0}, 'T-':{ 'sigma': 0.0, 'tau': 0.0},   # termica
-                  'C+':{ 'sigma': 0.0, 'tau': 0.0}, 'C-':{ 'sigma': 0.0, 'tau': 0.0},   # cedimenti
-                  'V+':{ 'sigma': 0.0, 'tau': 0.0}, 'V-':{'sigma': 0.0, 'tau': 0.0},   # vento
-      }
+# tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, # peso proprio
+#                   'G2+':{'sigma': 0.0, 'tau': 0.0}, 'G2-':{'sigma': 0.0, 'tau': 0.0}, # permanenti portati
+#                   'R+':{'sigma': 0.0, 'tau': 0.0}, 'R-':{'sigma': 0.0, 'tau': 0.0},  # ritiro
+#                   'Mfat+':{'sigma': 0.0, 'tau': 0.0}, 'Mfat-':{'sigma': 0.0, 'tau': 0.0}, # fatica
+#                   'MQ+':{'sigma': 0.0, 'tau': 0.0}, 'MQ-':{'sigma': 0.0, 'tau': 0.0}, # mobili concentrati
+#                   'Md+':{'sigma': 0.0, 'tau': 0.0}, 'Md-':{ 'sigma': 0.0, 'tau': 0.0}, # mobili distribuiti
+#                   'Mf+':{ 'sigma': 0.0, 'tau': 0.0}, 'Mf-':{ 'sigma': 0.0, 'tau': 0.0}, # folla
+#                   'T+':{ 'sigma': 0.0, 'tau': 0.0}, 'T-':{ 'sigma': 0.0, 'tau': 0.0},   # termica
+#                   'C+':{ 'sigma': 0.0, 'tau': 0.0}, 'C-':{ 'sigma': 0.0, 'tau': 0.0},   # cedimenti
+#                   'V+':{ 'sigma': 0.0, 'tau': 0.0}, 'V-':{'sigma': 0.0, 'tau': 0.0},   # vento
+#       }
 
-hi = [0, gapCls, gapCls, gapCls+tbf, gapCls+tbf+tbrf, gapCls+tbf+tbrf+hw, gapCls+tbf+tbrf+hw+rtbf_inf, gapCls+tbf+tbrf+hw+rtbf_inf+tbf_inf]
 
-hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
 
-Acls = gapCls*Bcls
+Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
 
 if selected3 == "Tensioni":
-
    ## PLOT TENSION POSITIVE
-   tension_plot_plus, list_tension = tension(dictProp, updated_dict_soll, hi_plot)
+   tension_plot_plus, list_tension = tension(st.session_state["dictProp"], 
+                                             st.session_state["dict_soll"], 
+                                             st.session_state["hi_plot"],
+                                             condition = "positive",
+                                             n0 = st.session_state["input_section"]["0"]["n_0"],
+                                             ninf = st.session_state["input_section"]["0"]["n_inf"],
+                                             nr = st.session_state["input_section"]["0"]["n_r"],
+                                             nc = st.session_state["input_section"]["0"]["n_c"]
+                                             )
+
 
    # using naive method
    # to convert lists to dictionary
@@ -325,7 +357,15 @@ if selected3 == "Tensioni":
    st.title("Tensioni M-")
    tab12, tab13, tab14, tab15, tab16, tab17, tab18, tab19, tab20, tab21, tab22 = st.tabs(test_keys)
 
-   tension_plot_neg, list_tension_neg = tension(dictProp, updated_dict_soll, hi_plot, condition="negative")
+   tension_plot_neg, list_tension_neg = tension(st.session_state["dictProp"], 
+                                             st.session_state["dict_soll"], 
+                                             st.session_state["hi_plot"],
+                                             condition = "negative",
+                                             n0 = st.session_state["input_section"]["0"]["n_0"],
+                                             ninf = st.session_state["input_section"]["0"]["n_inf"],
+                                             nr = st.session_state["input_section"]["0"]["n_r"],
+                                             nc = st.session_state["input_section"]["0"]["n_c"]
+                                             )
 
    # using naive method
    # to convert lists to dictionary
@@ -372,10 +412,10 @@ if selected3 == "Tensioni":
 
    tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
-   slu_plot = tension_plot(tension_slu, hi_plot)
-   rara_plot = tension_plot(tension_rara, hi_plot)
-   freq_plot = tension_plot(tension_frequente, hi_plot)
-   qp_plot = tension_plot(tension_qp, hi_plot)
+   slu_plot = tension_plot(tension_slu, st.session_state["hi_plot"])
+   rara_plot = tension_plot(tension_rara, st.session_state["hi_plot"])
+   freq_plot = tension_plot(tension_frequente, st.session_state["hi_plot"])
+   qp_plot = tension_plot(tension_qp, st.session_state["hi_plot"])
 
    with tab23:
       st.plotly_chart(slu_plot, use_container_width=True, key= "tension_slu")

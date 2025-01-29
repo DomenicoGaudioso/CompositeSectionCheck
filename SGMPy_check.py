@@ -11,7 +11,7 @@ import plotly.graph_objs as go
 
 
 
-def Sx_slab(bcls, hcls,  dictProp, condition = "positive"): 
+def Sx_slab(bcls, hcls,  dictProp, condition = "positive", n0 = 1, ninf = 1, nr = 1, nc = 1): 
 
    Acls = bcls*hcls
 
@@ -46,7 +46,8 @@ def Sx_slab(bcls, hcls,  dictProp, condition = "positive"):
    return Sx_list, z_list
 
 
-def tension(dictProp, Sollecitazioni, hi_plot, condition = "positive"):
+def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf = 1, nr = 1, nc = 1):
+   st.write("CIAO")
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
    negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
@@ -234,7 +235,7 @@ def tension(dictProp, Sollecitazioni, hi_plot, condition = "positive"):
 
       #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
       #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
-      fig.add_trace(go.Scatter(x=i_sigma, y=hi_plot, fill='tozeroy')) 
+      fig.add_trace(go.Scatter(x=i_sigma, y=hi, fill='tozeroy')) 
 
       fig.update_layout(
          title=dict(
