@@ -47,7 +47,7 @@ def Sx_slab(bcls, hcls,  dictProp, condition = "positive", n0 = 1, ninf = 1, nr 
 
 
 def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf = 1, nr = 1, nc = 1):
-   st.write("CIAO")
+   #st.write("CIAO")
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
    negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
@@ -517,3 +517,180 @@ def combinazione(list_sigma, category = "A1_sfav"):
    + np.array(list_sigma[9])*psi.loc['ventoPS', "psi2"])
 
    return sigma_slu, sigma_rara, sigma_frequente, sigma_qp
+
+
+def checkTension(sigma, fyd):
+   # Creiamo un dizionario con i dati delle verifiche
+
+   dc1 = max(abs(sigma[2]), abs(sigma[3]))/338
+   dc2 = max(abs(sigma[3]), abs(sigma[4]))/338
+   dc3 = max(abs(sigma[4]), abs(sigma[5]))/338
+   dc4 = max(abs(sigma[5]), abs(sigma[6]))/338
+   dc5 = max(abs(sigma[6]), abs(sigma[7]))/338
+
+   data = {
+      "Verifica": [
+         "piattabanda superiore",
+         "raddoppio superiore",
+         "anima",
+         "raddoppio inferiore",
+         "piattabanda inferiore",
+      ],
+      "sigma [MPa]": [max(abs(sigma[2]), abs(sigma[3])),
+               max(abs(sigma[3]), abs(sigma[4])),
+               max(abs(sigma[4]), abs(sigma[5])),
+               max(abs(sigma[5]), abs(sigma[6])),
+               max(abs(sigma[6]), abs(sigma[7])),
+      ],
+      "fyd [MPa]": [fyd,
+               fyd,
+               fyd,
+               fyd,
+               fyd,
+      ],
+
+      "D/C": [dc1,
+               dc2,
+               dc3,
+               dc4,
+               dc5,
+      ],
+
+      "Esito": [
+         "✅" if dc1<= 1 else "❌",
+         "✅" if dc2<= 1 else "❌",
+         "✅" if dc3<= 1 else "❌",
+         "✅" if dc4 <= 1 else "❌",
+         "✅" if dc5 <= 1.0 else "❌",
+      ]
+   }
+
+   # Creiamo un DataFrame con i dati
+   df_ver1_slu = pd.DataFrame(data)
+   # Mostriamo la tabella
+   st.table(df_ver1_slu)
+
+   return df_ver1_slu
+
+def checkTaglio_Instabilita(d, tw, fy, a = None):
+   epsilon = np.sqrt(235/fy)
+   eta = 1.20
+
+   if a == None:
+      k_tau = 5.34
+   elif a/d < 1:
+      k_tau = 4 + 5.34/(a/d)**2
+   elif a/d >= 1:
+      k_tau = 5.34 + 4/(a/d)**2
+
+   if a == None:
+      lambda_w = (d)/(86.4*epsilon*tw)
+   else:
+      lambda_w = (d/tw)/(37.4*epsilon*np.sqrt(k_tau)) # snellezza adimensioanle dell'anima
+   
+   ## calcolo tab = chi*tau_rd 
+   if lambda_w >= 1.08 and a != None: #Non rigid end post
+      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+
+   elif lambda_w <= 1.08 and lambda_w >= 0.83/eta: #Non rigid end post end rigid end post
+      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+
+   elif lambda_w < 0.83/eta: #Non rigid end post end rigid end post
+      tau_ba = (eta)*(fy/np.sqrt(3))
+   
+   
+   Vba_rd = (d*tw*tau_ba)/(1.15*1000)
+
+   st.markdown(fr"""
+   Fattore di imbozzamanto per taglio: 
+   $$k_{{\tau}} = {k_tau:.2f} \, \text{{}}$$
+   """)
+
+   st.markdown(fr"""
+   Snellezza adimensionale dell'anima: 
+   $$\overline{{\lambda}}_{{w}} = {lambda_w:.2f} \, \text{{}}$$
+   """)
+
+   st.markdown(fr"""
+   Resistenza post-critica a taglio: 
+   $${{\tau}}_{{ba}} = {tau_ba:.2f} \, \text{{MPa}}$$
+   """)
+
+   st.markdown(fr"""
+   Resistenza a taglio: 
+   $$V_{{ba,Rd}} = {Vba_rd:.2f} \, \text{{KN}}$$
+   """)
+
+
+   return Vba_rd
+
+def Sollecitazione_list(Sollecitazioni, condition = "positive", cds = "T"):
+
+   posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
+   negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
+
+   ## G1+
+   if condition == "positive":
+      cds_g1 = Sollecitazioni[posList[0]][cds]
+   else:
+      cds_g1 = Sollecitazioni[negList[0]][cds]
+
+   #st.write(g1_sigma_plot)
+   
+   ## G2+
+   if condition == "positive":
+      cds_g2 = Sollecitazioni[posList[1]][cds]
+   else:
+      cds_g2 = Sollecitazioni[negList[1]][cds]
+
+   ## R+ (CONTROLLARE)
+   if condition == "positive":
+      cds_r = Sollecitazioni[posList[2]][cds]
+   else:
+      cds_r = Sollecitazioni[negList[2]][cds]
+
+   ## Mfat+ Fatica (CONTROLLARE)
+   if condition == "positive":
+      cds_fat = Sollecitazioni[posList[3]][cds]
+   else:
+      cds_fat = Sollecitazioni[negList[3]][cds]
+
+   ## MQ+ Mobili concentrati
+   if condition == "positive":
+      cds_ts = Sollecitazioni[posList[4]][cds]
+   else:
+      cds_ts = Sollecitazioni[negList[4]][cds]
+
+   ## Md+ Mobili distribuiti
+   if condition == "positive":
+      cds_udl = Sollecitazioni[posList[5]][cds]
+   else:
+      cds_udl = Sollecitazioni[negList[5]][cds]
+
+   ## Mf+ Mobili folla
+   if condition == "positive":
+      cds_folla = Sollecitazioni[posList[6]][cds]
+   else:
+      cds_folla = Sollecitazioni[negList[6]][cds]
+
+   ## T+ termica(CONTROLLARE)
+   if condition == "positive":
+      cds_t = Sollecitazioni[posList[7]][cds]
+   else:
+      cds_t = Sollecitazioni[negList[7]][cds]
+
+   ## C+ (CONTROLLARE)
+   if condition == "positive":
+      cds_c = Sollecitazioni[posList[8]][cds]
+   else:
+      cds_c = Sollecitazioni[negList[8]][cds]
+
+   ## V+ vento(CONTROLLARE)
+   if condition == "positive":
+      cds_v = Sollecitazioni[posList[9]][cds]
+   else:
+      cds_v = Sollecitazioni[negList[9]][cds]
+
+   cds_list = [cds_g1, cds_g2, cds_r, cds_fat, cds_ts, cds_udl, cds_folla, cds_t, cds_c, cds_v]
+
+   return cds_list

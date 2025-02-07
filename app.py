@@ -221,8 +221,9 @@ if selected3 == "Sezione":
 
    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
    Isection = builtSection(listDict)
+   st.session_state["listDict"] = listDict
    #PARTIRE DA QUI PER CREARE IL MOMENTO STATICO PER IL CALCOLO DELLA FORZA NELLE SALDATURE
-
+   
 
    #print(Isection)
 
@@ -315,7 +316,7 @@ if selected3 == "Tensioni":
                                              nc = st.session_state["input_section"]["0"]["n_c"]
                                              )
 
-   st.write(st.session_state["hi_plot"][0:9])
+   #st.write(st.session_state["hi_plot"][0:9])
    # using naive method
    # to convert lists to dictionary
    test_keys = ["g1", "g2", "r", "Mf", "Mts", "Mudl", "Mfolla", "T", "C", "V", "totale"]
@@ -408,19 +409,30 @@ if selected3 == "Tensioni":
 
    ## TENSIONI COMBINATE
    tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
-   tension_slu_neg, tension_rara, tension_frequente, tension_qp = combinazione(list_tension_neg)
+   tension_slu_neg, tension_rara_neg, tension_frequente_neg, tension_qp_neg = combinazione(list_tension_neg)
+
+   st.session_state["tension_slu"] = [tension_slu, tension_slu_neg]
+   st.session_state["tension_rara"] = [tension_rara, tension_rara_neg]
+   st.session_state["tension_frequente"] = [tension_frequente, tension_frequente_neg]
+   st.session_state["tension_qp"] = [tension_qp, tension_qp_neg]
 
 
-
-   tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
    hi_plot_comb = st.session_state["hi_plot"][0:9]+[st.session_state["hi_plot"][0:9][-1], 0, 0]
-   slu_plot = tension_plot(tension_slu, hi_plot_comb)
-   rara_plot = tension_plot(tension_rara, hi_plot_comb)
-   freq_plot = tension_plot(tension_frequente, hi_plot_comb)
-   qp_plot = tension_plot(tension_qp, hi_plot_comb)
+   slu_plot = tension_plot(st.session_state["tension_slu"][0], hi_plot_comb)
+   rara_plot = tension_plot(st.session_state["tension_rara"][0], hi_plot_comb)
+   freq_plot = tension_plot(st.session_state["tension_frequente"][0], hi_plot_comb)
+   qp_plot = tension_plot(st.session_state["tension_qp"][0], hi_plot_comb)
+
+   slu_plot_neg = tension_plot(st.session_state["tension_slu"][1], hi_plot_comb)
+   rara_plot_neg = tension_plot(st.session_state["tension_rara"][1], hi_plot_comb)
+   freq_plot_neg = tension_plot(st.session_state["tension_frequente"][1], hi_plot_comb)
+   qp_plot_neg = tension_plot(st.session_state["tension_qp"][1], hi_plot_comb)
 
    #st.write(hi_plot_comb)
    #st.write(tension_slu)
+
+   st.title("Combinazione positive")
+   tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
    with tab23:
       st.plotly_chart(slu_plot, use_container_width=True, key= "tension_slu")
@@ -430,6 +442,20 @@ if selected3 == "Tensioni":
       st.plotly_chart(freq_plot, use_container_width=True, key= "tension_frequente")
    with tab26:
       st.plotly_chart(qp_plot, use_container_width=True, key= "tension_qp")
+
+   st.title("Combinazione negative")
+   tab27, tab28, tab29, tab30 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
+
+   with tab27:
+      st.plotly_chart(slu_plot_neg, use_container_width=True, key= "tension_slu_neg")
+   with tab28:
+      st.plotly_chart(rara_plot_neg, use_container_width=True, key= "tension_rara_neg")
+   with tab29:
+      st.plotly_chart(freq_plot_neg, use_container_width=True, key= "tension_frequente_neg")
+   with tab30:
+      st.plotly_chart(qp_plot_neg, use_container_width=True, key= "tension_qp_neg")
+
+   
 
 
 # Editable table using st.data_editor
@@ -447,56 +473,6 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 2) Verifiche tensionali sugli elementi in acciaio (S.L.U.)
                """)
-   # Creiamo un dizionario con i dati delle verifiche
-
-   dc1 = max(abs(tension_slu[2]), abs(tension_slu[3]))/338
-   dc2 = max(abs(tension_slu[3]), abs(tension_slu[4]))/338
-   dc3 = max(abs(tension_slu[4]), abs(tension_slu[5]))/338
-   dc4 = max(abs(tension_slu[5]), abs(tension_slu[6]))/338
-   dc5 = max(abs(tension_slu[6]), abs(tension_slu[7]))/338
-
-   data = {
-      "Verifica": [
-         "piattabanda superiore",
-         "raddoppio superiore",
-         "anima",
-         "raddoppio inferiore",
-         "piattabanda inferiore",
-      ],
-      "sigma [MPa]": [max(abs(tension_slu[2]), abs(tension_slu[3])),
-               max(abs(tension_slu[3]), abs(tension_slu[4])),
-               max(abs(tension_slu[4]), abs(tension_slu[5])),
-               max(abs(tension_slu[5]), abs(tension_slu[6])),
-               max(abs(tension_slu[6]), abs(tension_slu[7])),
-      ],
-      "fyd [MPa]": [338,
-               338,
-               338,
-               338,
-               338,
-      ],
-
-      "D/C": [dc1,
-               dc2,
-               dc3,
-               dc4,
-               dc5,
-      ],
-
-      "Esito": [
-         "✅" if dc1<= 1 else "❌",
-         "✅" if dc2<= 1 else "❌",
-         "✅" if dc3<= 1 else "❌",
-         "✅" if dc4 <= 1 else "❌",
-         "✅" if dc5 <= 1.0 else "❌",
-      ]
-   }
-
-   # Creiamo un DataFrame con i dati
-   df_ver1_slu = pd.DataFrame(data)
-   # Mostriamo la tabella
-   st.table(df_ver1_slu)
-
    st.markdown(r"""
       La tensione è stata calcolata come segue:
                
@@ -515,143 +491,26 @@ if selected3 == "Verifiche":
       Per quanto rigurada la resistenza è stata considerata quella del materiale ad associato al singolo componente in acciaio
    """)
 
+   st.markdown("""   
+               ###### Combinazione positiva
+               """)
+   checkTension(st.session_state["tension_slu"][0], 335/1.05)
+   st.markdown("""   
+               ###### Combinazione negativa
+               """)
+   checkTension(st.session_state["tension_slu"][1], 335/1.05)
 
    st.markdown("""   
-               ##### 3) Verifica a taglio - instabilità dell'anima (S.L.U.)
-               """)
-
-
-   def checkTaglio_Instabilita(d, tw, fy, a = None):
-      epsilon = np.sqrt(235/fy)
-      eta = 1.20
-
-      if a == None:
-         k_tau = 5.34
-      elif a/d < 1:
-         k_tau = 4 + 5.34/(a/d)**2
-      elif a/d >= 1:
-         k_tau = 5.34 + 4/(a/d)**2
-
-      if a == None:
-         lambda_w = (d)/(86.4*epsilon*tw)
-      else:
-         lambda_w = (d/tw)/(37.4*epsilon*np.sqrt(k_tau)) # snellezza adimensioanle dell'anima
-      
-      ## calcolo tab = chi*tau_rd 
-      if lambda_w >= 1.08 and a != None: #Non rigid end post
-         tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
-
-      elif lambda_w <= 1.08 and lambda_w >= 0.83/eta: #Non rigid end post end rigid end post
-         tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
-
-      elif lambda_w < 0.83/eta: #Non rigid end post end rigid end post
-         tau_ba = (eta)*(fy/np.sqrt(3))
-      
-      
-      Vba_rd = (d*tw*tau_ba)/(1.15*1000)
-
-      st.markdown(fr"""
-      Fattore di imbozzamanto per taglio: 
-      $$k_{{\tau}} = {k_tau:.2f} \, \text{{}}$$
-      """)
-
-      st.markdown(fr"""
-      Snellezza adimensionale dell'anima: 
-      $$\overline{{\lambda}}_{{w}} = {lambda_w:.2f} \, \text{{}}$$
-      """)
-
-      st.markdown(fr"""
-      Resistenza post-critica a taglio: 
-      $${{\tau}}_{{ba}} = {tau_ba:.2f} \, \text{{MPa}}$$
-      """)
-
-      st.markdown(fr"""
-      Resistenza a taglio: 
-      $$V_{{ba,Rd}} = {Vba_rd:.2f} \, \text{{KN}}$$
-      """)
-
-
-      return Vba_rd
-
-   def Sollecitazione_list(Sollecitazioni, condition = "positive", cds = "T"):
-
-      posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
-      negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
-
-      ## G1+
-      if condition == "positive":
-         cds_g1 = Sollecitazioni[posList[0]][cds]
-      else:
-         cds_g1 = Sollecitazioni[negList[0]][cds]
-
-      #st.write(g1_sigma_plot)
-      
-      ## G2+
-      if condition == "positive":
-         cds_g2 = Sollecitazioni[posList[1]][cds]
-      else:
-         cds_g2 = Sollecitazioni[negList[1]][cds]
-
-      ## R+ (CONTROLLARE)
-      if condition == "positive":
-         cds_r = Sollecitazioni[posList[2]][cds]
-      else:
-         cds_r = Sollecitazioni[negList[2]][cds]
-
-      ## Mfat+ Fatica (CONTROLLARE)
-      if condition == "positive":
-         cds_fat = Sollecitazioni[posList[3]][cds]
-      else:
-         cds_fat = Sollecitazioni[negList[3]][cds]
-
-      ## MQ+ Mobili concentrati
-      if condition == "positive":
-         cds_ts = Sollecitazioni[posList[4]][cds]
-      else:
-         cds_ts = Sollecitazioni[negList[4]][cds]
-
-      ## Md+ Mobili distribuiti
-      if condition == "positive":
-         cds_udl = Sollecitazioni[posList[5]][cds]
-      else:
-         cds_udl = Sollecitazioni[negList[5]][cds]
-
-      ## Mf+ Mobili folla
-      if condition == "positive":
-         cds_folla = Sollecitazioni[posList[6]][cds]
-      else:
-         cds_folla = Sollecitazioni[negList[6]][cds]
-
-      ## T+ termica(CONTROLLARE)
-      if condition == "positive":
-         cds_t = Sollecitazioni[posList[7]][cds]
-      else:
-         cds_t = Sollecitazioni[negList[7]][cds]
-
-      ## C+ (CONTROLLARE)
-      if condition == "positive":
-         cds_c = Sollecitazioni[posList[8]][cds]
-      else:
-         cds_c = Sollecitazioni[negList[8]][cds]
-
-      ## V+ vento(CONTROLLARE)
-      if condition == "positive":
-         cds_v = Sollecitazioni[posList[9]][cds]
-      else:
-         cds_v = Sollecitazioni[negList[9]][cds]
-
-      cds_list = [cds_g1, cds_g2, cds_r, cds_fat, cds_ts, cds_udl, cds_folla, cds_t, cds_c, cds_v]
-
-      return cds_list
+            ##### 3) Verifica a taglio - instabilità dell'anima (S.L.U.)
+            """)
 
    #st.write(updated_dict_soll)
-   Ved_pos = Sollecitazione_list(updated_dict_soll, condition = "positive", cds= "T")
-   Ved_neg = Sollecitazione_list(updated_dict_soll, condition = "negative", cds= "T")
+   Ved_pos = Sollecitazione_list(st.session_state["dict_soll"], condition = "positive", cds= "T")
+   Ved_neg = Sollecitazione_list(st.session_state["dict_soll"], condition = "negative", cds= "T")
 
    Ved_slu_pos = combinazione(Ved_pos, category = "A1_sfav")
    Ved_slu_neg = combinazione(Ved_neg, category = "A1_sfav")
-
-   taglio_anima = checkTaglio_Instabilita(hw, tw, 355)
+   taglio_anima = checkTaglio_Instabilita(st.session_state["input_section"]["0"]['ha'], st.session_state["input_section"]["0"]['ta'], 355)
 
 
    dc1 = Ved_slu_pos[0]/taglio_anima
@@ -703,7 +562,7 @@ if selected3 == "Verifiche":
    #momento statico per le saldature
    # saldature piattabanda superiore con raddoppio
    #st.write(listDict[0:1])
-   Stau_s1 = Sx_plate(listDict[0:1], clsSection, dictProp, condition = "positive")
+   Stau_s1 = Sx_plate(st.session_state["listDict"][0:1], clsSection, dictProp, condition = "positive")
    V_s1_pos = np.array(Ved_pos)/(np.array(Stau_s1[1]))
    V_s1_neg = np.array(Ved_neg)/(np.array(Stau_s1[1]))
 
@@ -712,7 +571,7 @@ if selected3 == "Verifiche":
 
    #st.write(Stau_s1[1])
    # saldature raddoppio piattabanda superiore con anima
-   Stau_s2 = Sx_plate(listDict[0:2], clsSection, dictProp, condition = "positive")
+   Stau_s2 = Sx_plate(st.session_state["listDict"][0:2], clsSection, dictProp, condition = "positive")
    V_s2_pos = np.array(Ved_pos)/(np.array(Stau_s2[1]))
    V_s2_neg = np.array(Ved_neg)/(np.array(Stau_s2[1]))
 
@@ -720,7 +579,7 @@ if selected3 == "Verifiche":
    Vs2_comb_neg = combinazione(list(V_s2_neg), category = "A1_sfav")
    #st.write(Stau_s2[1])
    # saldature raddoppio piattabanda inferiore con anima
-   Stau_s3 = Sx_plate(listDict[0:3], clsSection, dictProp, condition = "positive")
+   Stau_s3 = Sx_plate(st.session_state["listDict"][0:3], clsSection, dictProp, condition = "positive")
    V_s3_pos = np.array(Ved_pos)/(np.array(Stau_s3[1]))
    V_s3_neg = np.array(Ved_neg)/(np.array(Stau_s3[1]))
 
@@ -728,7 +587,7 @@ if selected3 == "Verifiche":
    Vs3_comb_neg = combinazione(list(V_s3_neg), category = "A1_sfav")
    #st.write(Stau_s3[1])
    # saldature piattabanda inferiore con anima
-   Stau_s4 = Sx_plate(listDict[0:4], clsSection, dictProp, condition = "positive")
+   Stau_s4 = Sx_plate(st.session_state["listDict"][0:4], clsSection, dictProp, condition = "positive")
    V_s4_pos = np.array(Ved_pos)/(np.array(Stau_s4[1]))
    V_s4_neg = np.array(Ved_neg)/(np.array(Stau_s4[1]))
 
