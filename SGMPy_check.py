@@ -311,21 +311,21 @@ def tension_plot(x_list, y_list):
 
    return fig
 
-def Sx_plate(listPlate, clsSection, dictProp, condition = "positive"): 
+def Sx_plate(listPlate, clsSection, dictProp, condition = "positive", bar = [1, 1], n = [1, 1, 1, 1]): 
 
    #Fase 1 - Only steel
    SectionComposite_g1 = builtSection(listPlate)
    #Fase 2 - G2 - t inf
-   SectionComposite_g2 = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], ninf)
+   SectionComposite_g2 = CompositeSection(SectionComposite_g1, clsSection, bar, n[1])
    #Fase 3 - R - ritiro
-   SectionComposite_r = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], nr)
+   SectionComposite_r = CompositeSection(SectionComposite_g1, clsSection, bar, n[2])
    #Fase 4 - C - cedimenti
-   SectionComposite_c = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], nc)
+   SectionComposite_c = CompositeSection(SectionComposite_g1, clsSection, bar, n[3])
    #Fase 5 - Qm - mobili
-   SectionComposite_m = CompositeSection(SectionComposite_g1, clsSection, [b0, b1], n0)
+   SectionComposite_m = CompositeSection(SectionComposite_g1, clsSection, bar, n[0])
    #Fase 6 - Fessurato
    clsSection_F = RectangularSection(0.1, 0.1, [0, 0], material="C25/30")
-   SectionComposite_f = CompositeSection(SectionComposite_g1, clsSection_F, [b0, b1], 100000)
+   SectionComposite_f = CompositeSection(SectionComposite_g1, clsSection_F, bar, 100000)
 
    #calcolo del momento statico della soletta rispetto il baricentro della sezione composta
    Sx_g1 = SectionComposite_g1["A"]*( dictProp["g1"]["Pg"][1] - SectionComposite_g1["Pg"][1])

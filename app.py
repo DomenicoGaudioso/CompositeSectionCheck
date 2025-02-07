@@ -182,6 +182,9 @@ if selected3 == "Sezione":
    pointG1 = [[-int_inf*i, Hcls-35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, Hcls-35] for i in range(1, int(Bcls*0.5/100))]
    b0 = renforcementBar(phi_sup, pointG0)
    b1 = renforcementBar(phi_inf, pointG1)
+   st.session_state["clsSection"] = clsSection
+   st.session_state["cls_bar"] = [b0, b1]
+
    # = rectangularCA(clsSection, [b0, b1])
    #cplot = plotSection_ploty(c)
    #cplot.show()
@@ -223,7 +226,6 @@ if selected3 == "Sezione":
    Isection = builtSection(listDict)
    st.session_state["listDict"] = listDict
    #PARTIRE DA QUI PER CREARE IL MOMENTO STATICO PER IL CALCOLO DELLA FORZA NELLE SALDATURE
-   
 
    #print(Isection)
 
@@ -243,7 +245,6 @@ if selected3 == "Sezione":
    #Fase 2 - G2 - t inf
    SectionComposite_g2 = CompositeSection(Isection, clsSection, [b0, b1], ninf)
    dictProp["g2"] = SectionComposite_g2
-
 
    #Fase 3 - R - ritiro
    SectionComposite_r = CompositeSection(Isection, clsSection, [b0, b1], nr)
@@ -561,8 +562,19 @@ if selected3 == "Verifiche":
 
    #momento statico per le saldature
    # saldature piattabanda superiore con raddoppio
+   n_list = [st.session_state["input_section"]["0"]["n_0"],
+   st.session_state["input_section"]["0"]["n_inf"],
+   st.session_state["input_section"]["0"]["n_r"],
+   st.session_state["input_section"]["0"]["n_c"]]
+   
    #st.write(listDict[0:1])
-   Stau_s1 = Sx_plate(st.session_state["listDict"][0:1], clsSection, dictProp, condition = "positive")
+   Stau_s1 = Sx_plate(st.session_state["listDict"][0:1], 
+                      st.session_state["clsSection"], 
+                      st.session_state["dictProp"], 
+                      condition = "positive", 
+                      bar = st.session_state["cls_bar"],
+                      n = n_list )
+   
    V_s1_pos = np.array(Ved_pos)/(np.array(Stau_s1[1]))
    V_s1_neg = np.array(Ved_neg)/(np.array(Stau_s1[1]))
 
@@ -571,7 +583,7 @@ if selected3 == "Verifiche":
 
    #st.write(Stau_s1[1])
    # saldature raddoppio piattabanda superiore con anima
-   Stau_s2 = Sx_plate(st.session_state["listDict"][0:2], clsSection, dictProp, condition = "positive")
+   Stau_s2 = Sx_plate(st.session_state["listDict"][0:2], st.session_state["clsSection"], st.session_state["dictProp"], condition = "positive", bar = st.session_state["cls_bar"], n = n_list)
    V_s2_pos = np.array(Ved_pos)/(np.array(Stau_s2[1]))
    V_s2_neg = np.array(Ved_neg)/(np.array(Stau_s2[1]))
 
@@ -579,7 +591,7 @@ if selected3 == "Verifiche":
    Vs2_comb_neg = combinazione(list(V_s2_neg), category = "A1_sfav")
    #st.write(Stau_s2[1])
    # saldature raddoppio piattabanda inferiore con anima
-   Stau_s3 = Sx_plate(st.session_state["listDict"][0:3], clsSection, dictProp, condition = "positive")
+   Stau_s3 = Sx_plate(st.session_state["listDict"][0:3], st.session_state["clsSection"], st.session_state["dictProp"], condition = "positive", bar = st.session_state["cls_bar"], n = n_list)
    V_s3_pos = np.array(Ved_pos)/(np.array(Stau_s3[1]))
    V_s3_neg = np.array(Ved_neg)/(np.array(Stau_s3[1]))
 
@@ -587,7 +599,7 @@ if selected3 == "Verifiche":
    Vs3_comb_neg = combinazione(list(V_s3_neg), category = "A1_sfav")
    #st.write(Stau_s3[1])
    # saldature piattabanda inferiore con anima
-   Stau_s4 = Sx_plate(st.session_state["listDict"][0:4], clsSection, dictProp, condition = "positive")
+   Stau_s4 = Sx_plate(st.session_state["listDict"][0:4], st.session_state["clsSection"], st.session_state["dictProp"], condition = "positive", bar = st.session_state["cls_bar"], n = n_list)
    V_s4_pos = np.array(Ved_pos)/(np.array(Stau_s4[1]))
    V_s4_neg = np.array(Ved_neg)/(np.array(Stau_s4[1]))
 
