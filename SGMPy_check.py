@@ -227,6 +227,10 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
    sigma_tot_plot = np.sum(list_sigma, axis=0)
    
    list_sigma.append(sigma_tot_plot)
+   hi_plot = hi + [hi[-1], 0, 0]
+
+   #st.write(hi_plot)
+   #st.write(list_sigma[1] )
    
    list_fig = []
    for i_sigma in list_sigma:
@@ -235,7 +239,7 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
 
       #fig.add_trace(go.Scatter(x=g1_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g1")) 
       #fig.add_trace(go.Scatter(x=g2_sigma_plot, y=hi_plot, fill='tozeroy', name = "tensione g2")) 
-      fig.add_trace(go.Scatter(x=i_sigma, y=hi, fill='tozeroy')) 
+      fig.add_trace(go.Scatter(x=i_sigma, y=hi_plot, fill='tozeroy')) 
 
       fig.update_layout(
          title=dict(

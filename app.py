@@ -359,7 +359,7 @@ if selected3 == "Tensioni":
 
    tension_plot_neg, list_tension_neg = tension(st.session_state["dictProp"], 
                                              st.session_state["dict_soll"], 
-                                             st.session_state["hi_plot"],
+                                             st.session_state["hi_plot"][0:9],
                                              condition = "negative",
                                              n0 = st.session_state["input_section"]["0"]["n_0"],
                                              ninf = st.session_state["input_section"]["0"]["n_inf"],
@@ -410,12 +410,17 @@ if selected3 == "Tensioni":
    tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
    tension_slu_neg, tension_rara, tension_frequente, tension_qp = combinazione(list_tension_neg)
 
-   tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
-   slu_plot = tension_plot(tension_slu, st.session_state["hi_plot"])
-   rara_plot = tension_plot(tension_rara, st.session_state["hi_plot"])
-   freq_plot = tension_plot(tension_frequente, st.session_state["hi_plot"])
-   qp_plot = tension_plot(tension_qp, st.session_state["hi_plot"])
+
+   tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
+   hi_plot_comb = st.session_state["hi_plot"][0:9]+[st.session_state["hi_plot"][0:9][-1], 0, 0]
+   slu_plot = tension_plot(tension_slu, hi_plot_comb)
+   rara_plot = tension_plot(tension_rara, hi_plot_comb)
+   freq_plot = tension_plot(tension_frequente, hi_plot_comb)
+   qp_plot = tension_plot(tension_qp, hi_plot_comb)
+
+   #st.write(hi_plot_comb)
+   #st.write(tension_slu)
 
    with tab23:
       st.plotly_chart(slu_plot, use_container_width=True, key= "tension_slu")
