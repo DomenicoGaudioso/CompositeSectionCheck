@@ -368,6 +368,9 @@ if selected3 == "Tensioni":
                                              nr = st.session_state["input_section"]["0"]["n_r"],
                                              nc = st.session_state["input_section"]["0"]["n_c"]
                                              )
+   
+   st.session_state["list_tension_pos"] = list_tension
+   st.session_state["list_tension_neg"] = list_tension_neg
 
    # using naive method
    # to convert lists to dictionary
@@ -692,7 +695,7 @@ if selected3 == "Verifiche":
       $$
    """)
 
-   Sx, zx = Sx_slab(Bcls, gapCls,  dictProp, condition = "positive")
+   Sx, zx = Sx_slab(st.session_state["input_section"]["0"]["Bcls"], st.session_state["gapCls"],  st.session_state["dictProp"], condition = "positive")
 
    V_pioli_pos = np.array(Ved_pos)/(np.array(zx))
    V_pioli_neg = np.array(Ved_neg)/(np.array(zx))
@@ -769,13 +772,31 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 6) Verifiche dettagli a fatica
                """)
+   st.image("Screenshot 2025-01-28 182905.png", caption="Dettagli a Fatica per travi saldate")
+   st.image("Screenshot 2025-01-28 182928.png", caption="Dettagli a Fatica per travi bullonate")
 
-   delta_sigma = (np.array(list_tension[3]) - np.array(list_tension_neg[3]))
-   delta_tau_cls = (V_pioli_pos[3] - V_pioli_neg[3])
-   delta_tau1 = (V_s1_pos[3] - V_s1_neg[3])
-   delta_tau2 = (V_s2_pos[3] - V_s2_neg[3])
-   delta_tau3 = (V_s3_pos[3] - V_s3_neg[3])
-   delta_tau4 = (V_s4_pos[3] - V_s4_neg[3])
+      # Dizionario con i coefficienti di sicurezza
+   gamma_mf_values = {
+      ("Poco sensibile", "Moderate"): 1.00,
+      ("Poco sensibile", "Significative"): 1.15,
+      ("Sensibile", "Moderate"): 1.15,
+      ("Sensibile", "Significative"): 1.35
+   }
+
+   # Selezione dei parametri
+   sensibilita = st.selectbox("Seleziona la sensibilità alla fatica:", ["Poco sensibile", "Sensibile"])
+   conseguenze = st.selectbox("Seleziona le conseguenze della rottura:", ["Moderate", "Significative"])
+
+   # Mostra il coefficiente corrispondente
+   gamma_mf = gamma_mf_values[(sensibilita, conseguenze)]
+   st.write(f"### Coefficiente di sicurezza γₘ𝒻 = {gamma_mf:.2f}")
+
+   delta_sigma = (np.array(st.session_state["list_tension_pos"][3]) - np.array(st.session_state["list_tension_neg"][3]))*gamma_mf
+   delta_tau_cls = (V_pioli_pos[3] - V_pioli_neg[3])*gamma_mf
+   delta_tau1 = (V_s1_pos[3] - V_s1_neg[3])*gamma_mf
+   delta_tau2 = (V_s2_pos[3] - V_s2_neg[3])*gamma_mf
+   delta_tau3 = (V_s3_pos[3] - V_s3_neg[3])*gamma_mf
+   delta_tau4 = (V_s4_pos[3] - V_s4_neg[3])*gamma_mf
 
    ## VERIFICA ALLO SLU
    data = {
