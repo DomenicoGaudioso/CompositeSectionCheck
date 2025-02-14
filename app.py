@@ -111,9 +111,8 @@ except:
 
                      "phi_sup": [20], 
                      "int_sup": [200],
-                     "int_inf": [200],
                      "phi_inf": [1], 
-                     "int_inf": [100],
+                     "int_inf": [500],
 
                      "n_inf": [15], 
                      "n_0": [6],
