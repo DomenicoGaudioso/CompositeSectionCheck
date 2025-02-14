@@ -89,41 +89,44 @@ if selected3 == "Sollecitazioni":
 
    st.session_state["dict_soll"] = updated_dict_soll
    
+try:
+   input_section = st.session_state["input_section"]
+except:
+   input_section = { 'l': [12*1000], #lunghezza del concio
+                  
+                     "bPsup": [250], #larghezza piattabanda superiore
+                     'tPsup': [20], #spessore piattabanda superiore
+                     "brPsup": [0], # larghezza raddoppio piattabanda superiore
+                     'trPsup': [0], #spessore raddoppio piattabanda superiore
+                     "ha": [360], #altezza anima
+                     "ta": [12], #spessore anima
+                     "brPinf": [0], #larghezza raddoppio piattabanda inferiore
+                     'trPinf': [0], #spessore raddoppio piattabanda inferiore
+                     "bPinf": [300], #larghezza piattabanda inferiore
+                     'tPinf': [20], #spessore piattabanda inferiore
 
-input_section = { 'l': [12*1000], #lunghezza del concio
-               
-                  "bPsup": [250], #larghezza piattabanda superiore
-                  'tPsup': [20], #spessore piattabanda superiore
-                  "brPsup": [0], # larghezza raddoppio piattabanda superiore
-                  'trPsup': [0], #spessore raddoppio piattabanda superiore
-                  "ha": [360], #altezza anima
-                  "ta": [12], #spessore anima
-                  "brPinf": [0], #larghezza raddoppio piattabanda inferiore
-                  'trPinf': [0], #spessore raddoppio piattabanda inferiore
-                  "bPinf": [300], #larghezza piattabanda inferiore
-                  'tPinf': [20], #spessore piattabanda inferiore
+                     "hcls": [204],
+                     "h_predalle": [6],
+                     "Bcls": [1500],
 
-                  "hcls": [204],
-                  "h_predalle": [6],
-                  "Bcls": [1000],
+                     "phi_sup": [20], 
+                     "int_sup": [200],
+                     "int_inf": [200],
+                     "phi_inf": [1], 
+                     "int_inf": [100],
 
-                  "phi_sup": [16], 
-                  "int_sup": [100],
-                  "int_inf": [100],
-                  "phi_inf": [16], 
-                  "int_inf": [100],
+                     "n_inf": [15], 
+                     "n_0": [6],
+                     "n_r": [18], 
+                     "n_c": [17],
 
-                  "n_inf": [15], 
-                  "n_0": [6],
-                  "n_r": [18], 
-                  "n_c": [17],
+                     "c_sup": [40], 
+                     "c_inf": [40],
 
-                  "c_sup": [40], 
-                  "c_inf": [40],
+                     "mat_cls": ["C35/40"],
+                     "mat_steel": ["S355"],
+                     }
 
-                  "mat_cls": ["C35/40"],
-                  "mat_steel": ["S355"],
-                  }
 
 if selected3 == "Sezione":
 
@@ -193,7 +196,7 @@ if selected3 == "Sezione":
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
    clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
    pointG0 = [[-int_sup*i, c_inf] for i in range(0, int(Bcls*0.5/int_sup))] + [[int_inf*i, c_inf] for i in range(1, int(Bcls*0.5/int_sup))]
-   pointG1 = [[-int_inf*i, Hcls-c_inf-hpredall] for i in range(0, int(Bcls*0.5/int_inf))] + [[int_inf*i, Hcls-c_inf] for i in range(1, int(Bcls*0.5/int_inf))]
+   pointG1 = [[-int_inf*i, Hcls-c_inf-hpredall] for i in range(0, int(Bcls*0.5/int_inf))] + [[int_inf*i, Hcls-c_inf-hpredall] for i in range(1, int(Bcls*0.5/int_inf))]
    b0 = renforcementBar(phi_sup, pointG0)
    b1 = renforcementBar(phi_inf, pointG1)
    st.session_state["clsSection"] = clsSection
