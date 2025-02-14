@@ -56,7 +56,7 @@ if selected3 == "Documentazione":
 
 Sollecitazioni = {'G1+':{'N': -0.0, 'T': 65, 'Mf': 89, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
                   'G2+':{'N': 0.0, 'T': 74, 'Mf': 77, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
-                  'R+':{ 'N': 0.0, 'T': 0.0, 'Mf': 197, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
+                  'R+':{ 'N': 1314, 'T': 0.0, 'Mf': 175, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
                   'Mfat+':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, 'Mfat-':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, # fatica
                   'MQ+':{ 'N': 0.0, 'T': 286, 'Mf': 336, 'Mt': 0.0}, 'MQ-':{ 'N': 0.0, 'T': -248, 'Mf': -91.0, 'Mt': 0.0}, # mobili concentrati
                   'Md+':{'N': 0.0, 'T': 34, 'Mf': 48, 'Mt': 0.0}, 'Md-':{ 'N': 0.0, 'T': -37, 'Mf': -16, 'Mt': 0.0}, # mobili distribuiti
