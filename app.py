@@ -194,7 +194,8 @@ if selected3 == "Sezione":
 
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
    clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
-   pointG0 = [[-int_sup*i, c_inf] for i in range(0, int(Bcls*0.5/int_sup))] + [[int_inf*i, c_inf] for i in range(1, int(Bcls*0.5/int_sup))]
+   pointG0 = [[-int_sup*i, c_sup] for i in range(0, int(Bcls*0.5/int_sup))] + [[int_inf*(i+1), c_sup] for i in range(0, int(Bcls*0.5/int_sup)-1)]
+
    pointG1 = [[-int_inf*i, Hcls-c_inf-hpredall] for i in range(0, int(Bcls*0.5/int_inf))] + [[int_inf*i, Hcls-c_inf-hpredall] for i in range(1, int(Bcls*0.5/int_inf))]
    b0 = renforcementBar(phi_sup, pointG0)
    b1 = renforcementBar(phi_inf, pointG1)
@@ -303,19 +304,6 @@ if selected3 == "Sezione":
    
    hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
    st.session_state["hi_plot"] = hi_plot
-
-## CALCOLO TENSIONI
-# tension = {'G1+':{'sigma': 0.0, 'tau': 0.0}, 'G1-':{'sigma': 0.0, 'tau': 0.0}, # peso proprio
-#                   'G2+':{'sigma': 0.0, 'tau': 0.0}, 'G2-':{'sigma': 0.0, 'tau': 0.0}, # permanenti portati
-#                   'R+':{'sigma': 0.0, 'tau': 0.0}, 'R-':{'sigma': 0.0, 'tau': 0.0},  # ritiro
-#                   'Mfat+':{'sigma': 0.0, 'tau': 0.0}, 'Mfat-':{'sigma': 0.0, 'tau': 0.0}, # fatica
-#                   'MQ+':{'sigma': 0.0, 'tau': 0.0}, 'MQ-':{'sigma': 0.0, 'tau': 0.0}, # mobili concentrati
-#                   'Md+':{'sigma': 0.0, 'tau': 0.0}, 'Md-':{ 'sigma': 0.0, 'tau': 0.0}, # mobili distribuiti
-#                   'Mf+':{ 'sigma': 0.0, 'tau': 0.0}, 'Mf-':{ 'sigma': 0.0, 'tau': 0.0}, # folla
-#                   'T+':{ 'sigma': 0.0, 'tau': 0.0}, 'T-':{ 'sigma': 0.0, 'tau': 0.0},   # termica
-#                   'C+':{ 'sigma': 0.0, 'tau': 0.0}, 'C-':{ 'sigma': 0.0, 'tau': 0.0},   # cedimenti
-#                   'V+':{ 'sigma': 0.0, 'tau': 0.0}, 'V-':{'sigma': 0.0, 'tau': 0.0},   # vento
-#       }
 
 
 Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
