@@ -50,21 +50,20 @@ input_data = {}
 
 
 if selected3 == "Documentazione":
-
    st.title("Documentazione in WIP")
 
 
 
-Sollecitazioni = {'G1+':{'N': -0.0, 'T': 100.0, 'Mf': 9.58, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
-                  'G2+':{'N': 0.0, 'T': 100.0, 'Mf': 7.55, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
-                  'R+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
-                  'Mfat+':{ 'N': 0.0, 'T': 100.0, 'Mf': 0.0, 'Mt': 0.0}, 'Mfat-':{ 'N': 0.0, 'T': 400.0, 'Mf': 0.0, 'Mt': 0.0}, # fatica
-                  'MQ+':{ 'N': 0.0, 'T': 100.0, 'Mf': 1274, 'Mt': 0.0}, 'MQ-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # mobili concentrati
-                  'Md+':{'N': 0.0, 'T': 200.0, 'Mf': 138, 'Mt': 0.0}, 'Md-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0}, # mobili distribuiti
-                  'Mf+':{ 'N': 0.0, 'T': 0.0, 'Mf': 800.0, 'Mt': 0.0}, 'Mf-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0}, # folla
-                  'T+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, 'T-':{ 'N': 0.0, 'T': 0.0, 'Mf': 1200.0, 'Mt': 0.0},   # termica
-                  'C+':{ 'N': 0.0, 'T': 120.0, 'Mf': 10.0, 'Mt': 0.0}, 'C-':{ 'N': 0.0, 'T': 100.0, 'Mf': 1200.0, 'Mt': 0.0},   # cedimenti
-                  'V+':{ 'N': 0.0, 'T': 150.0, 'Mf': 10.0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 30.0, 'Mf': 1200.0, 'Mt': 0.0},   # vento
+Sollecitazioni = {'G1+':{'N': -0.0, 'T': 65, 'Mf': 89, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
+                  'G2+':{'N': 0.0, 'T': 74, 'Mf': 77, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
+                  'R+':{ 'N': 0.0, 'T': 0.0, 'Mf': 197, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
+                  'Mfat+':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, 'Mfat-':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, # fatica
+                  'MQ+':{ 'N': 0.0, 'T': 286, 'Mf': 336, 'Mt': 0.0}, 'MQ-':{ 'N': 0.0, 'T': -248, 'Mf': -91.0, 'Mt': 0.0}, # mobili concentrati
+                  'Md+':{'N': 0.0, 'T': 34, 'Mf': 48, 'Mt': 0.0}, 'Md-':{ 'N': 0.0, 'T': -37, 'Mf': -16, 'Mt': 0.0}, # mobili distribuiti
+                  'Mf+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0, 'Mt': 0.0}, 'Mf-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # folla
+                  'T+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, 'T-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # termica
+                  'C+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'C-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # cedimenti
+                  'V+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # vento
       }
 
 # Convert dictionary to DataFrame
@@ -93,19 +92,19 @@ if selected3 == "Sollecitazioni":
 
 input_section = { 'l': [12*1000], #lunghezza del concio
                
-                  "bPsup": [300], #larghezza piattabanda superiore
+                  "bPsup": [250], #larghezza piattabanda superiore
                   'tPsup': [20], #spessore piattabanda superiore
                   "brPsup": [0], # larghezza raddoppio piattabanda superiore
                   'trPsup': [0], #spessore raddoppio piattabanda superiore
                   "ha": [360], #altezza anima
-                  "ta": [10], #spessore anima
+                  "ta": [12], #spessore anima
                   "brPinf": [0], #larghezza raddoppio piattabanda inferiore
                   'trPinf': [0], #spessore raddoppio piattabanda inferiore
-                  "bPinf": [350], #larghezza piattabanda inferiore
+                  "bPinf": [300], #larghezza piattabanda inferiore
                   'tPinf': [20], #spessore piattabanda inferiore
 
-                  "hcls": [190],
-                  "h_predalle": [50],
+                  "hcls": [204],
+                  "h_predalle": [6],
                   "Bcls": [1000],
 
                   "phi_sup": [16], 
@@ -118,6 +117,12 @@ input_section = { 'l': [12*1000], #lunghezza del concio
                   "n_0": [6],
                   "n_r": [18], 
                   "n_c": [17],
+
+                  "c_sup": [40], 
+                  "c_inf": [40],
+
+                  "mat_cls": ["C35/40"],
+                  "mat_steel": ["S355"],
                   }
 
 if selected3 == "Sezione":
@@ -139,7 +144,8 @@ if selected3 == "Sezione":
    )
 
    # convert back to dictionary
-   updated_dict_section = edited_df_sec.to_dict()
+   updated_df_sec = edited_df_sec.applymap(lambda x: np.float64(x) if str(x).replace('.', '', 1).isdigit() else x)
+   updated_dict_section = updated_df_sec.to_dict()
    st.json(updated_dict_section , expanded=False)
    st.session_state["input_section"] = updated_dict_section
 
@@ -173,13 +179,21 @@ if selected3 == "Sezione":
    nr = float(edited_df_sec.loc['n_r'][0])
    nc = float(edited_df_sec.loc['n_c'][0])
 
+   c_sup = float(edited_df_sec.loc['c_sup'][0])
+   c_inf = float(edited_df_sec.loc['c_inf'][0])
+
+   mat_cls = edited_df_sec.loc['mat_cls'][0]
+   mat_steel = edited_df_sec.loc['mat_steel'][0]
+
+
+
 
 
 
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
-   clsSection = RectangularSection(Bcls, Hcls, [0, 0], material="C25/30")
-   pointG0 = [[-int_sup*i, 35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, 35] for i in range(1, int(Bcls*0.5/100))]
-   pointG1 = [[-int_inf*i, Hcls-35] for i in range(0, int(Bcls*0.5/100))] + [[int_inf*i, Hcls-35] for i in range(1, int(Bcls*0.5/100))]
+   clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
+   pointG0 = [[-int_sup*i, c_inf] for i in range(0, int(Bcls*0.5/int_sup))] + [[int_inf*i, c_inf] for i in range(1, int(Bcls*0.5/int_sup))]
+   pointG1 = [[-int_inf*i, Hcls-c_inf-hpredall] for i in range(0, int(Bcls*0.5/int_inf))] + [[int_inf*i, Hcls-c_inf] for i in range(1, int(Bcls*0.5/int_inf))]
    b0 = renforcementBar(phi_sup, pointG0)
    b1 = renforcementBar(phi_inf, pointG1)
    st.session_state["clsSection"] = clsSection
@@ -192,12 +206,12 @@ if selected3 == "Sezione":
 
    ## COSTRUZIONE SEZIONE IN ACCIAIO 
    gapCls = hpredall+Hcls
-   PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material="S355")
-   rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material="S355")
+   PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material=mat_steel)
+   rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
    #vribs1 = V_rib(283, 300, 25, 6, [0, 70+16]) #cl4Dict={"Binst":75, "Be1":60}
-   wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material="S355", cl4Dict=None)
-   rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material="S355")
-   PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material="S355")
+   wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=None)
+   rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
+   PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material=mat_steel)
 
    st.session_state["gapCls"] = gapCls
    st.session_state["PlateSup"] = PlateSup
@@ -302,11 +316,11 @@ if selected3 == "Sezione":
 #       }
 
 
-
 Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
 
 if selected3 == "Tensioni":
    ## PLOT TENSION POSITIVE
+   
    tension_plot_plus, list_tension = tension(st.session_state["dictProp"], 
                                              st.session_state["dict_soll"], 
                                              st.session_state["hi_plot"][0:9],
