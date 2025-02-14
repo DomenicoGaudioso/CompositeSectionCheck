@@ -885,7 +885,7 @@ def CompositeSection(SteelSection, ClsSection, dictListBar, n=6):
     Iz_cls = (ClsSection["Iz"]+Acls*(xg_cls-ClsSection["Pg"][0])**2 - sum([idict["Iz"]+idict["A"]*(xg_cls-idict["Pg"][0])**2 for idict in dictListBar]))
     
     ## PROPRIETA DELLA SEZIONE COMPOSTA
-    Atot = SteelSection["A"] + ClsSection["A"]/n + sum([idict["A"] for idict in dictListBar])
+    Atot = SteelSection["A"] + Acls/n + sum([idict["A"] for idict in dictListBar])
     yg = (SteelSection["A"]*SteelSection["Pg"][1] + Acls*yg_cls/n + sum([idict["A"]*idict["Pg"][1] for idict in dictListBar]))/Atot
     xg = (SteelSection["A"]*SteelSection["Pg"][0] + Acls*xg_cls/n + sum([idict["A"]*idict["Pg"][0] for idict in dictListBar]))/Atot
     
