@@ -62,7 +62,7 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
 
    g1_sigmaN = N*1000/dictProp["g1"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["g1"]["Pg"][1]
-   g1_sigmaMf = (Mf*1000/dictProp["g1"]["Iy"])*hg #contributo per momento flettente
+   g1_sigmaMf = (Mf*1000**2/dictProp["g1"]["Iy"])*hg #contributo per momento flettente
    g1_sigma = g1_sigmaN + g1_sigmaMf
    g1_sigma[0], g1_sigma[1] = 0, 0
    g1_sigma_plot = list(g1_sigma) + [0.0, 0.0, g1_sigma[0]]

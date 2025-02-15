@@ -878,26 +878,27 @@ def builtSection(listDict):
 def CompositeSection(SteelSection, ClsSection, dictListBar, n=6):
     
     ## CALCESTRUZZO AL NETTO DELLE BARRE DI ARMATURA
-    Acls = ClsSection["A"] - sum([idict["A"] for idict in dictListBar])
+    Acls = ClsSection["A"] #- sum([idict["A"] for idict in dictListBar])
     xg_cls = (ClsSection["A"]*ClsSection["Pg"][0] - sum([idict["A"]*idict["Pg"][0] for idict in dictListBar]))/Acls
     yg_cls = (ClsSection["A"]*ClsSection["Pg"][1] - sum([idict["A"]*idict["Pg"][1] for idict in dictListBar]))/Acls
     Iy_cls = (ClsSection["Iy"]+Acls*(yg_cls-ClsSection["Pg"][1])**2 - sum([idict["Iy"]+idict["A"]*(yg_cls-idict["Pg"][1])**2 for idict in dictListBar]))
     Iz_cls = (ClsSection["Iz"]+Acls*(xg_cls-ClsSection["Pg"][0])**2 - sum([idict["Iz"]+idict["A"]*(xg_cls-idict["Pg"][0])**2 for idict in dictListBar]))
     
+    A_bar = sum([idict["A"] for idict in dictListBar])
     ## PROPRIETA DELLA SEZIONE COMPOSTA
-    Atot = SteelSection["A"] + Acls/n + sum([idict["A"] for idict in dictListBar])
-    yg = (SteelSection["A"]*SteelSection["Pg"][1] + Acls*yg_cls/n + sum([idict["A"]*idict["Pg"][1] for idict in dictListBar]))/Atot
-    xg = (SteelSection["A"]*SteelSection["Pg"][0] + Acls*xg_cls/n + sum([idict["A"]*idict["Pg"][0] for idict in dictListBar]))/Atot
+    Atot = SteelSection["A"] + (Acls-A_bar)/n + sum([idict["A"] for idict in dictListBar])
+    yg = (SteelSection["A"]*SteelSection["Pg"][1] + (Acls-A_bar)*yg_cls/n + sum([idict["A"]*idict["Pg"][1] for idict in dictListBar]))/Atot
+    xg = (SteelSection["A"]*SteelSection["Pg"][0] + (Acls-A_bar)*xg_cls/n + sum([idict["A"]*idict["Pg"][0] for idict in dictListBar]))/Atot
     
     
-    Iy = (Iy_cls+Acls*(yg-yg_cls)**2/n + sum([idict["Iy"]+idict["A"]*(yg-idict["Pg"][1])**2 for idict in dictListBar]))
-    Iz = (Iz_cls+Acls*(xg-xg_cls)**2/n + sum([idict["Iz"]+idict["A"]*(xg-idict["Pg"][0])**2 for idict in dictListBar]))
+    Iy = (Iy_cls+Acls*(yg-yg_cls)**2)/n + sum([idict["Iy"]+idict["A"]*(yg-idict["Pg"][1])**2 for idict in dictListBar])
+    Iz = (Iz_cls+Acls*(xg-xg_cls)**2)/n + sum([idict["Iz"]+idict["A"]*(xg-idict["Pg"][0])**2 for idict in dictListBar])
     
     Iy += SteelSection["Iy"] + SteelSection["A"]*(yg-SteelSection["Pg"][1])**2 
-    Iy += ClsSection["Iy"]/n + ClsSection["A"]*(yg-ClsSection["Pg"][1])**2/n 
+    #Iy += ClsSection["Iy"]/n + ClsSection["A"]*(yg-ClsSection["Pg"][1])**2/n 
     
     Iz += SteelSection["Iz"] + SteelSection["A"]*(xg-SteelSection["Pg"][0])**2 
-    Iz += ClsSection["Iz"]/n + ClsSection["A"]*(xg-ClsSection["Pg"][0])**2/n 
+    #Iz += ClsSection["Iz"]/n + ClsSection["A"]*(xg-ClsSection["Pg"][0])**2/n 
     
     coordinates = []
     # for i in ClsSection['sec_point']:
