@@ -722,10 +722,10 @@ if selected3 == "Verifiche":
    ft = 450  # MPa
    fck = 30  # MPa
    Ec = 30000  # MPa
-   hsc = 100  # mm
+   hsc = 150  # mm
 
    nfp = 1 #numero file di pioli
-   s_pioli = 200 #passo pioli in un metro
+   s_pioli = 250 #passo pioli in un metro
    nPioli_tot = (1000/s_pioli)*nfp
 
    resPiolo = np.min(Resistenza_Piolo(d, ft, fck, Ec, hsc)).real
