@@ -51,6 +51,8 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
 
    posList = ["G1+", "G2+", 'R+', 'Mfat+', 'MQ+', 'Md+', 'Mf+','T+', 'C+', 'V+']
    negList = ["G1-", "G2-", 'R-', 'Mfat-', 'MQ-', 'Md-', 'Mf-','T-', 'C-', 'V-']
+   
+   
 
    ## G1+
    if condition == "positive":
@@ -93,12 +95,15 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
    else:
       N = Sollecitazioni[negList[2]]["N"]
       Mf = Sollecitazioni[negList[2]]["Mf"]
+   
+   Acls_r = (dictProp["r"]["A"] - dictProp["fe"]["A"])
+   sigma_r = -N*1000/(Acls_r*nr)
 
    r_sigmaN = N*1000/dictProp["r"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["r"]["Pg"][1]
    r_sigmaMf = (Mf*1000**2/dictProp["r"]["Iy"])*hg #contributo per momento flettente
    r_sigma = r_sigmaN + r_sigmaMf
-   r_sigma[0], r_sigma[1] =  r_sigma[0]/nr, r_sigma[1]/nr
+   r_sigma[0], r_sigma[1] =  r_sigma[0]/nr + sigma_r, r_sigma[1]/nr + sigma_r
    r_sigma_plot = list(r_sigma) + [0.0, 0.0, r_sigma[0]]
 
    ## Mfat+ Fatica (CONTROLLARE)
