@@ -171,6 +171,7 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
    folla_sigma_plot = list(folla_sigma) + [0.0, 0.0, folla_sigma[0]]
 
    ## T+ termica(CONTROLLARE)
+
    if condition == "positive":
       N = Sollecitazioni[posList[7]]["N"]
       Mf = Sollecitazioni[posList[7]]["Mf"]
@@ -178,11 +179,14 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
       N = Sollecitazioni[negList[7]]["N"]
       Mf = Sollecitazioni[negList[7]]["Mf"]
 
+   Acls_t = (dictProp["g2"]["A"] - dictProp["fe"]["A"])
+   sigma_t = -N*1000/(Acls_t*ninf)
+
    t_sigmaN = N*1000/dictProp["g2"]["A"] #contributo per sola forza normale
    hg = np.array(hi)+dictProp["g2"]["Pg"][1]
    t_sigmaMf = (Mf*1000**2/dictProp["g2"]["Iy"])*hg #contributo per momento flettente
    t_sigma = t_sigmaN + t_sigmaMf
-   t_sigma[0], t_sigma[1] =  t_sigma[0]/ninf, t_sigma[1]/ninf
+   t_sigma[0], t_sigma[1] =  t_sigma[0]/ninf + sigma_t, t_sigma[1]/ninf + sigma_t
    t_sigma_plot = list(t_sigma) + [0.0, 0.0, t_sigma[0]]
 
    ## C+ (CONTROLLARE)
@@ -197,7 +201,7 @@ def tension(dictProp, Sollecitazioni, hi, condition = "positive", n0 = 1, ninf =
    hg = np.array(hi)+dictProp["c"]["Pg"][1]
    c_sigmaMf = (Mf*1000**2/dictProp["c"]["Iy"])*hg #contributo per momento flettente
    c_sigma = c_sigmaN + c_sigmaMf
-   c_sigma[0], c_sigma[1] =  c_sigma[0]/nc, c_sigma[1]/nc
+   c_sigma[0], c_sigma[1] =  c_sigma[0]/nc , c_sigma[1]/nc
    c_sigma_plot = list(c_sigma) + [0.0, 0.0, c_sigma[0]]
 
    ## V+ vento(CONTROLLARE)
