@@ -587,9 +587,9 @@ def checkTaglio_Instabilita(d, tw, fy, a = None):
 
    if a == None:
       k_tau = 5.34
-   elif a/d < 1:
+   elif a/d < 1 and type(a) == "float":
       k_tau = 4 + 5.34/(a/d)**2
-   elif a/d >= 1:
+   elif a/d >= 1 and type(a) == "float":
       k_tau = 5.34 + 4/(a/d)**2
 
    if a == None:
