@@ -703,3 +703,72 @@ def Sollecitazione_list(Sollecitazioni, condition = "positive", cds = "T"):
    cds_list = [cds_g1, cds_g2, cds_r, cds_fat, cds_ts, cds_udl, cds_folla, cds_t, cds_c, cds_v]
 
    return cds_list
+
+
+def webBreathing(l, h, t, sigma, shear, a = None, typeBridge = "road bridges"):
+
+   if typeBridge == "road bridges":
+      limit = min(30 + 4.0*l, 300)
+
+   elif typeBridge == "railways bridges":
+      limit = min(55 + 3.3*l, 250)
+   
+   rapporto = h/t
+   if rapporto <= limit and l>20:
+      st.text("la verifica del respiro dell'anima non è necessaria")
+   else:
+      st.text("è necessaria la verifica del respiro dell'anima ")
+
+   sigma_e = 190000*(t/h)**2
+   st.write(sigma_e)
+
+
+   sigma1 = sigma[0]
+   sigma2 = sigma[1]
+   psi = round(sigma1/sigma2,3)
+   #print(sigma1, sigma2, "psi", psi)
+   # CALCOLO COEFFICIENTE DI IMBOZZAMENTO
+   ksigma = 4.0 if  psi == 1.00 else 8.2/(1.05+psi) if 1> psi >0 else 7.81 if psi == 0 else 7.81-6.29*psi + 9.78*psi**2 if 0> psi >-1 else 23.9 if psi == -1 else 5.98*(1-psi)**2 if -1> psi >-3 else print("WARNING: risulta fuori dalle condizioni impostate") 
+   st.write(psi)
+   st.write(ksigma)
+
+   if a == None:
+      k_tau = 5.34
+   elif a/h < 1 :
+      k_tau = 4 + 5.34/(a/h)**2
+   elif a/h >= 1 :
+      k_tau = 5.34 + 4/(a/h)**2
+   
+   st.text(k_tau)
+
+   tau_ed = shear/(t*h)*2 # ho messo il due per approssimare che in mezzeria la tensione è maggiore
+   sigma_max= max(abs(sigma1), abs(sigma2))
+
+   sigma_ec3 = np.sqrt((sigma_max/(ksigma*sigma_e))**2 + (1.1*tau_ed/(k_tau*sigma_e))**2)
+   st.write(sigma_ec3)
+
+   data1 = {
+      "sigma1": [sigma1],
+      "sigma2": [sigma2],
+      "psi": [psi],
+      "ksigma": [ksigma],
+      "ktau": [k_tau],
+   }
+
+   data2 = {
+      "Verifica": ["Taglio"],
+      "Ved [KN]": [shear],
+      "sigma_max [MPa]": [sigma_max],
+      "tau_max [MPa]": [tau_ed],
+      "sigma_ec [MPa]": [sigma_ec3],
+      "Esito": ["✅" if sigma_ec3 <= 1.1 else "❌"]
+   }
+
+   # Creiamo un DataFrame con i dati
+   df1= pd.DataFrame(data1)
+   st.table(df1)
+   df2= pd.DataFrame(data2)
+   # Mostriamo la tabella
+   st.table(df2)
+
+   return data1, data2
