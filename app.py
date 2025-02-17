@@ -495,7 +495,7 @@ if selected3 == "Verifiche":
                sigmaClasse[0], 
                sigmaClasse[1])
    
-   st.write("Calcolo della classe allo SLE (rara)")
+   
    sigmaClasse = st.session_state["tension_rara"][0][4:6]
 
    data_classe = {
@@ -508,6 +508,8 @@ if selected3 == "Verifiche":
    df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
    st.table(df_classe)
+
+   st.write("Calcolo della classe allo SLE (rara)")
 
    cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
