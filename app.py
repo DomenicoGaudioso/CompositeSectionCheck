@@ -485,6 +485,16 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 1) Calcolo della classe sezionale
                """)
+   
+   cAnima = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+               st.session_state["input_section"]["0"]['ta'], 
+               335, 
+               100, 
+               sigma[0], 
+               sigma[1])
+
+   st.write(cAnima)
+   
 
    st.markdown("""   
                ##### 2) Verifiche tensionali sugli elementi in acciaio (S.L.U.)
