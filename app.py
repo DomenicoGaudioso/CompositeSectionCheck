@@ -569,20 +569,17 @@ if selected3 == "Verifiche":
    
    st.markdown(r"""
       deve essere rispettata la seguente equazione:
-               
+                    
       $$
       \frac{sigma_(x,Ed)}{k_(sigma) \cdot sigma_(E)}^2 + \frac{1.1\cdot tau_(x,Ed)}{k_(tau) \cdot sigma_(E)}^2
       $$
 
       Dove:
-      - $$ \sigma(y)$$: Tensione normale nel punto.
-      - N: Forza normale (assiale).
-      - A: Area della sezione trasversale.
-      - M: Momento flettenti 
-      - I: Momento di inerzia
-      - y: Coordinate del punto rispetto al baricentro della sezione.
-      
-      Per quanto rigurada la resistenza è stata considerata quella del materiale ad associato al singolo componente in acciaio
+      - $$ \sigma_x,Ed $$: Tensione normale calcolata nella combinazione frequente.
+      - $$ \tau_x,Ed $$: Tensione tangenziale calcolata nella combinazione frequente.
+      - $$ \k_sigma, \k_tau $$: coefficienti di instabilità
+      - $$ \sigma_E = 190000 (\frac{t}{b})^2$$
+               
    """)
 
    bridge_type = st.selectbox("bridge type",
