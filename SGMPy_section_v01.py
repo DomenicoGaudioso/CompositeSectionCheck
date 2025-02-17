@@ -748,6 +748,96 @@ def ClasseAnima(d, t, fyk, yn, sigma1, sigma2): #PANNELLO IRRIGIDITO DA ENTRAMBI
                   "detail": {1: c1, 2: c2, 3: c3, 4: c4}}
     
     return classeDict
+
+def Classe1Piattabanda(d, t, fyk):
+    
+    eps = np.sqrt(235/fyk)
+    a = d/t
+    
+    classe_1 = {}
+    # solo compressione
+    # compressione 
+    classe_1["compressione"] = [a, 9*eps, True] if a <= 9*eps else False 
+    #flessione e compressione
+
+    return classe_1
+
+def Classe2Piattabanda(d, t, fyk):
+    
+    eps = np.sqrt(235/fyk)
+    a = d/t
+    
+    ## CALCOLO CLASSE SEZIONALE - saldata
+    classe_2 = {}
+
+    # compressione 
+    classe_2["compressione"] = [a, 10*eps,True] if 9*eps < a <= 10*eps else False
+
+    return classe_2
+
+def Classe3Piattabanda(d, t, fyk):
+    eps = np.sqrt(235/fyk)
+    a = d/t
+    
+    ## CALCOLO CLASSE SEZIONALE - saldata
+    classe_3 = {}
+
+    # compressione 
+    classe_3["compressione"] = [a, 14*eps,True] if 10*eps < a <= 14*eps else False
+    #flessione e compressione
+
+    return classe_3
+
+def Classe4Piattabanda(d, t, fyk):
+    eps = np.sqrt(235/fyk)
+    a = d/t
+    ## CALCOLO CLASSE SEZIONALE - saldata
+    
+    # classe anima
+    # CALCOLO PSI
+    psi = 1
+    #print(sigma1, sigma2, "psi", psi)
+    # CALCOLO COEFFICIENTE DI IMBOZZAMENTO
+    ksigma = 0.43 if  psi == 1.00 else 0.57 if psi == 0 else 0.85 if psi == -1 else 0.57-0.21*psi + 0.07*psi**2 if 1>= psi >=-3 else print("WARNING: risulta fuori dalle condizioni impostate") 
+    # CALCOLO SNELLEZZA DEL PANNELLO
+    lamP = (a)/(28.4*eps*np.sqrt(ksigma))
+    # CALCOLO FATTORE DI RIDUZIONE PER PANNELLI IRRIGIDITI DA ENTRAMBI I LATI
+    rid = 1 if lamP <= 0.748 else (lamP-0.188)/lamP**2 if lamP > 0.748 else print("WARNING: risulta fuori dalle condizioni impostate")
+    # CALCOLO LARGHEZZA EFFICACE
+    if 1>= psi >= 0:
+        beff = rid*d
+        
+    elif psi < 0:
+        bc = d/(1-psi)
+        beff = rid*bc
+    
+    classe_4 = [beff]
+
+    return classe_4
+
+def ClassePiattabanda(d, t, fyk): #PANNELLO IRRIGIDITO DA ENTRAMBI I LATI
+    classe = {'flessione': None, 'compressione': None, 'flessione e compressione': None}
+    
+    c1 = Classe1Piattabanda(d, t, fyk)
+    c2 = Classe2Piattabanda(d, t, fyk)
+    c3 = Classe3Piattabanda(d, t, fyk)
+    c4 = Classe4Piattabanda(d, t, fyk)
+    
+        
+    # COMPRESSIONE
+    if c1["compressione"] != False and c2["compressione"] == False and c3["compressione"] == False:
+        classe["compressione"] = 1
+    elif c2["compressione"] != False and c1["compressione"] == False and c3["compressione"] == False:
+        classe["compressione"] = 2
+    elif c3["compressione"] != False and c1["compressione"] == False and c2["compressione"] == False:
+        classe["compressione"] = 3
+    else:
+        classe["compressione"] = 4
+    
+    classeDict = {"result": classe,
+                  "detail": {1: c1, 2: c2, 3: c3, 4: c4}}
+    
+    return classeDict
         
 ## SEZIONE PICCOLA  
 #orPlateSup = OrizontalPlate(2500, 16, [0, 0])  

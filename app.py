@@ -486,6 +486,12 @@ if selected3 == "Verifiche":
                ##### 1) Calcolo della classe sezionale
                """)
    st.write("Calcolo della classe allo SLU")
+
+   tp_inf = st.session_state["input_section"]["0"]['tPinf'] + st.session_state["input_section"]["0"]['trPinf']
+   bp_inf = (st.session_state["input_section"]["0"]['tPinf']*st.session_state["input_section"]["0"]['bPinf'] + st.session_state["input_section"]["0"]['trPinf']*st.session_state["input_section"]["0"]['brPinf'])/tp_inf
+   
+   cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, 335)
+   
    sigmaClasse = st.session_state["tension_slu"][0][4:6]
 
    cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
@@ -500,7 +506,7 @@ if selected3 == "Verifiche":
 
    data_classe = {
       "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
-      "compressione": [ None, cAnima_slu["result"]["compressione"], None],
+      "compressione": [ 1, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
       "presso-inflessa": [ None, cAnima_slu["result"]["flessione e compressione"], None],
       }
 
@@ -522,7 +528,7 @@ if selected3 == "Verifiche":
 
    data_classe = {
       "flessione": [ None, cAnima_sle["result"]["flessione"] , None],
-      "compressione": [ None, cAnima_sle["result"]["compressione"], None],
+      "compressione": [ 1, cAnima_sle["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
       "presso-inflessa": [ None, cAnima_sle["result"]["flessione e compressione"], None],
       }
 
