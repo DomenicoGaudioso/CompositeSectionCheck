@@ -483,7 +483,7 @@ if selected3 == "Verifiche":
                #### Verifiche
                """)
    st.markdown("""   
-               ##### 1) Calcolo della classe 
+               ##### 1) Calcolo della classe sezionale
                """)
 
    st.markdown("""   
@@ -566,6 +566,25 @@ if selected3 == "Verifiche":
    st.markdown("""   
          ##### 4) Limitation of web breathing (S.L.E.)
          """)
+   
+   st.markdown(r"""
+      deve essere rispettata la seguente equazione:
+               
+      $$
+      \frac{sigma_(x,Ed)}{k_(sigma) \cdot sigma_(E)}^2 + \frac{1.1\cdot tau_(x,Ed)}{k_(tau) \cdot sigma_(E)}^2
+      $$
+
+      Dove:
+      - $$ \sigma(y)$$: Tensione normale nel punto.
+      - N: Forza normale (assiale).
+      - A: Area della sezione trasversale.
+      - M: Momento flettenti 
+      - I: Momento di inerzia
+      - y: Coordinate del punto rispetto al baricentro della sezione.
+      
+      Per quanto rigurada la resistenza è stata considerata quella del materiale ad associato al singolo componente in acciaio
+   """)
+
    bridge_type = st.selectbox("bridge type",
         ("road bridges","railways bridges"),)
    
@@ -607,13 +626,20 @@ if selected3 == "Verifiche":
       
       st.text(k_tau)
 
-      
-
       tau_ed = shear/(t*h)*2 # ho messo il due per approssimare che in mezzeria la tensione è maggiore
       sigma_max= max(abs(sigma1), abs(sigma2))
 
       sigma_ec3 = np.sqrt((sigma_max/(ksigma*sigma_e))**2 + (1.1*tau_ed/(k_tau*sigma_e))**2)
       st.write(sigma_ec3)
+
+      data = {
+         "Verifica": ["Taglio"],
+         "Ved [KN]": [shear],
+         "sigma_max [MPa]": [sigma_max],
+         "tau_max [MPa]": [tau_ed],
+         "sigma_ec [MPa]": [sigma_ec3],
+         "Esito": ["✅" if sigma_ec3 <= 1.1 else "❌"]
+      }
 
       return
    
