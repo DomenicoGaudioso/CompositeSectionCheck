@@ -588,13 +588,12 @@ if selected3 == "Verifiche":
    luce = st.number_input("luce campata", 20)
    
    sigma = st.session_state["tension_frequente"][0][4:6]
-   st.write(sigma)
 
    webBreathing(luce, 
                 st.session_state["input_section"]["0"]['ha'], 
                 st.session_state["input_section"]["0"]['ta'], 
                 sigma, 
-                1000,
+                Ved_slu_pos[2]*1000,
                 a = None,
                 typeBridge = bridge_type)
    
