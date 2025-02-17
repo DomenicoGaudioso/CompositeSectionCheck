@@ -504,7 +504,7 @@ if selected3 == "Verifiche":
       }
 
    # Creiamo un DataFrame con i dati
-   df_classe = pd.DataFrame(data_classe)
+   df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
    st.table(df_classe)
 
