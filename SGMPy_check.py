@@ -753,10 +753,6 @@ def webBreathing(l, h, t, sigma, shear, a = None, typeBridge = "road bridges"):
       "psi": [psi],
       "ksigma": [ksigma],
       "ktau": [k_tau],
-   }
-
-   data2 = {
-      "Verifica": ["Taglio"],
       "Ved [KN]": [shear],
       "sigma_max [MPa]": [sigma_max],
       "tau_max [MPa]": [tau_ed],
@@ -767,8 +763,5 @@ def webBreathing(l, h, t, sigma, shear, a = None, typeBridge = "road bridges"):
    # Creiamo un DataFrame con i dati
    df1= pd.DataFrame(data1)
    st.table(df1)
-   df2= pd.DataFrame(data2)
-   # Mostriamo la tabella
-   st.table(df2)
 
-   return data1, data2
+   return data
