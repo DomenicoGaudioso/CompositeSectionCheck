@@ -571,13 +571,13 @@ if selected3 == "Verifiche":
       deve essere rispettata la seguente equazione:
                     
       $$
-      \frac{\sigma_(x,Ed)}{k_(sigma) \cdot sigma_(E)}^2 + \frac{1.1\cdot tau_(x,Ed)}{k_(tau) \cdot sigma_(E)}^2
+      \frac{\sigma_{x,Ed}}{k_{\sigma} \cdot \sigma_E}^2 + \frac{1.1\cdot \tau_{x,Ed}}{\k_{tau} \cdot \sigma_E}^2
       $$
 
       Dove:
-      - $$ \sigma_x,Ed $$: Tensione normale calcolata nella combinazione frequente.
-      - $$ \tau_x,Ed $$: Tensione tangenziale calcolata nella combinazione frequente.
-      - $$ \k_sigma, \k_tau $$: coefficienti di instabilità
+      - $$ \sigma_{x,Ed} $$: Tensione normale calcolata nella combinazione frequente.
+      - $$ \tau_{x,Ed} $$: Tensione tangenziale calcolata nella combinazione frequente.
+      - $$ \k_{sigma}, \k_{tau} $$: coefficienti di instabilità
       - $$ \sigma_E = 190000 (\frac{t}{b})^2$$
                
    """)
