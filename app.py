@@ -714,7 +714,7 @@ if selected3 == "Verifiche":
    Vs4_comb_neg = combinazione(list(V_s4_neg), category = "A1_sfav")
    #st.write(Stau_s4[1])
 
-   a_gola = st.number_input("numero di file", value=6, key = "gola") #lunghezza gola mm
+   a_gola = st.number_input("gola", value=6, key = "gola") #lunghezza gola mm
    res_cordoni = resistenza_saldatura_EC("S235", a_gola, gamma_m2=1.25)*2/1000
 
    ds1_sald_pos = Vs1_comb_pos[0]/res_cordoni
