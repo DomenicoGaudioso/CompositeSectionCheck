@@ -494,6 +494,16 @@ if selected3 == "Verifiche":
                100, 
                sigmaClasse[0], 
                sigmaClasse[1])
+   
+   st.write("Calcolo della classe allo SLE (rara)")
+   sigmaClasse = st.session_state["tension_rara"][0][4:6]
+
+   cAnima = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+               st.session_state["input_section"]["0"]['ta'], 
+               335, 
+               100, 
+               sigmaClasse[0], 
+               sigmaClasse[1])
 
    #st.write(cAnima)
 
