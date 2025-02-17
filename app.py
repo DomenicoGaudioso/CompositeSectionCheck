@@ -495,7 +495,20 @@ if selected3 == "Verifiche":
                sigmaClasse[0], 
                sigmaClasse[1])
 
-   st.write(cAnima)
+   #st.write(cAnima)
+
+   data_classe = {
+      "flessione": [ None, cAnima["result"]["flessione"] , None],
+      "compressione": [ None, cAnima["result"]["compressione"], None],
+      "presso-inflessa": [ None, cAnima["result"]["flessione e compressione"], None],
+      }
+
+   # Creiamo un DataFrame con i dati
+   df_classe = pd.DataFrame(data_classe)
+   # Mostriamo la tabella
+   st.table(df_classe)
+
+
    
 
    st.markdown("""   
