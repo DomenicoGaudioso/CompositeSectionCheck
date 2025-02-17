@@ -519,9 +519,9 @@ if selected3 == "Verifiche":
    #st.write(cAnima)
 
    data_classe = {
-      "flessione": [ None, cAnima["result"]["flessione"] , None],
-      "compressione": [ None, cAnima["result"]["compressione"], None],
-      "presso-inflessa": [ None, cAnima["result"]["flessione e compressione"], None],
+      "flessione": [ None, cAnima_sle["result"]["flessione"] , None],
+      "compressione": [ None, cAnima_sle["result"]["compressione"], None],
+      "presso-inflessa": [ None, cAnima_sle["result"]["flessione e compressione"], None],
       }
 
    # Creiamo un DataFrame con i dati
