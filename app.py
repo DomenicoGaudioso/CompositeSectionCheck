@@ -810,7 +810,7 @@ if selected3 == "Verifiche":
    Vpioli_comb_neg = combinazione(list(V_pioli_neg), category = "A1_sfav")
 
    # Esempio di utilizzo
-   d_piolo = st.number_input("diametro piolo", value=16) #diametro dei pioli
+   d_piolo = st.number_input("diametro piolo", value=16, key="d_piolo") #diametro dei pioli
    hsc  = st.number_input("altezza piolo", value=150) #altezza pioli
    ft = 450  # MPa
    fck = 35  # MPa
