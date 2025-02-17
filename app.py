@@ -714,8 +714,8 @@ if selected3 == "Verifiche":
    Vs4_comb_neg = combinazione(list(V_s4_neg), category = "A1_sfav")
    #st.write(Stau_s4[1])
 
-   a = 6 # gola 6 mm
-   res_cordoni = resistenza_saldatura_EC("S235", a, gamma_m2=1.25)*2/1000
+   a_gola = st.number_input("numero di file", value=6) #lunghezza gola mm
+   res_cordoni = resistenza_saldatura_EC("S235", a_gola, gamma_m2=1.25)*2/1000
 
    ds1_sald_pos = Vs1_comb_pos[0]/res_cordoni
    ds1_sald_neg = Vs1_comb_neg[0]/res_cordoni
@@ -810,17 +810,17 @@ if selected3 == "Verifiche":
    Vpioli_comb_neg = combinazione(list(V_pioli_neg), category = "A1_sfav")
 
    # Esempio di utilizzo
-   d = 16  # mm
+   d_piolo = st.number_input("diametro piolo", value=16) #diametro dei pioli
+   hsc  = st.number_input("altezza piolo", value=150) #altezza pioli
    ft = 450  # MPa
-   fck = 30  # MPa
-   Ec = 30000  # MPa
-   hsc = 150  # mm
+   fck = 35  # MPa
+   Ec = 34000  # MPa
 
-   nfp = 1 #numero file di pioli
-   s_pioli = 250 #passo pioli in un metro
-   nPioli_tot = (1000/s_pioli)*nfp
+   nfp = st.number_input("numero di file", value=1) #numero file di pioli
+   s_pioli = st.number_input("passo", value=250) #passo pioli in un metro
+   nPioli_tot = (1000/s_pioli)*nfp #numero di pioli in un metro
 
-   resPiolo = np.min(Resistenza_Piolo(d, ft, fck, Ec, hsc)).real
+   resPiolo = np.min(Resistenza_Piolo(d_piolo, ft, fck, Ec, hsc)).real
 
    st.markdown(fr"""
    La resistenza del singolo piolo è pari a:  {resPiolo:.2f} kN
