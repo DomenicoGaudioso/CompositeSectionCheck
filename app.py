@@ -485,7 +485,7 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 1) Calcolo della classe sezionale
                """)
-   
+   st.write("Calcolo della classe allo SLU")
    sigmaClasse = st.session_state["tension_slu"][0][4:6]
 
    cAnima = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
