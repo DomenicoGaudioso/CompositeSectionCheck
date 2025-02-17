@@ -488,7 +488,7 @@ if selected3 == "Verifiche":
    st.write("Calcolo della classe allo SLU")
    sigmaClasse = st.session_state["tension_slu"][0][4:6]
 
-   cAnima = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+   cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
                335, 
                100, 
@@ -498,7 +498,18 @@ if selected3 == "Verifiche":
    st.write("Calcolo della classe allo SLE (rara)")
    sigmaClasse = st.session_state["tension_rara"][0][4:6]
 
-   cAnima = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+   data_classe = {
+      "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
+      "compressione": [ None, cAnima_slu["result"]["compressione"], None],
+      "presso-inflessa": [ None, cAnima_slu["result"]["flessione e compressione"], None],
+      }
+
+   # Creiamo un DataFrame con i dati
+   df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
+   # Mostriamo la tabella
+   st.table(df_classe)
+
+   cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
                335, 
                100, 
