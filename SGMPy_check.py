@@ -747,7 +747,7 @@ def webBreathing(l, h, t, sigma, shear, a = None, typeBridge = "road bridges"):
       "psi": [psi],
       "ksigma": [ksigma],
       "ktau": [k_tau],
-      "Ved [KN]": [shear],
+      "Ved [N]": [shear],
       "sigma_max [MPa]": [sigma_max],
       "tau_max [MPa]": [tau_ed],
       "sigma_ec [MPa]": [sigma_ec3],
