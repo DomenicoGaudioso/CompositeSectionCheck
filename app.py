@@ -571,7 +571,7 @@ if selected3 == "Verifiche":
       deve essere rispettata la seguente equazione:
                     
       $$
-      \sqrt[2]{\left(\frac{\sigma_{x,Ed}}{k_{\sigma} \cdot \sigma_E})^2 + (\frac{1.1\cdot \tau_{x,Ed}}{k_{\tau} \cdot \sigma_E})^2}
+      \sqrt[2]{ \left(\frac{\sigma_{x,Ed}}{k_{\sigma} \cdot \sigma_E})^2 + \left(\frac{1.1\cdot \tau_{x,Ed}}{k_{\tau} \cdot \sigma_E})^2}
       $$
 
       Dove:
