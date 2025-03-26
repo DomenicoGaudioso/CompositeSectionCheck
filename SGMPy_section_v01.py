@@ -592,11 +592,29 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
     #print("Momento d'inerzia rispetto all'asse y", elasticProp["Iz"])
     
 
-    """     
-    if cl4Dict != None: ## CALCOLO PROPRIETA' pER CLASSE 4 DELLA SEZIONE
+        
+    if cl4Dict != None: ## CALCOLO PROPRIETA' per CLASSE 4 DELLA SEZIONE
         ##WIP
+        print("ciao")
+        st.write(cl4Dict)
+        h1 = - trasl[1]-cl4Dict["delta"]
+        h2 = - trasl[1]-cl4Dict["delta"]-cl4Dict["be1"]
+
+        X = [-t/2+trasl[0], -t/2+trasl[0], t/2+trasl[0], t/2+trasl[0]]
+        Y = [h1, h2, h2, h1]
+        coordinates = [(xi, yi) for xi, yi in zip(X, Y)]
+        if alpha != 0:
+            # Angolo di rotazione in radianti
+            angle_radians = np.deg2rad(alpha) 
+            # Ruotare ciascun punto del poligono
+            coordinates = [rotate_point(point, angle_radians, coordinates[0]) for point in coordinates]
+        
+        elasticProp_neg = propCalc(coordinates)
+        elasticProp_neg = propCalc(coordinates)
+        #elasticProp["mat"] = steel_ntc18(material, t, gamma_s = 1.15)
+        
     else:
-        propDict = elasticProp """
+        propDict = elasticProp 
 
     return elasticProp 
 

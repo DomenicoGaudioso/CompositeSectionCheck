@@ -193,8 +193,6 @@ if selected3 == "Sezione":
 
 
 
-
-
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
    clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
    #armature superiori
@@ -220,7 +218,13 @@ if selected3 == "Sezione":
    PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material=mat_steel)
    rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
    #vribs1 = V_rib(283, 300, 25, 6, [0, 70+16]) #cl4Dict={"Binst":75, "Be1":60}
-   wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=None)
+   try:
+      cl4Dict = st.session_state["params_cl4slu"]
+   except:
+      cl4Dict = None
+   st.write(cl4Dict)
+   wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+   
    rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
    PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material=mat_steel)
 
@@ -516,6 +520,8 @@ if selected3 == "Verifiche":
                yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
+   st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
+   st.write(st.session_state["params_cl4slu"])
 
 
 
@@ -543,7 +549,7 @@ if selected3 == "Verifiche":
                yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
-
+   st.session_state["params_cl4sle"] = cAnima_sle["detail"][4]
    #st.write(cAnima)
 
    data_classe = {
