@@ -509,7 +509,7 @@ if selected3 == "Verifiche":
    fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
                      st.session_state["input_section"]["0"]['ta'], 
                      gamma_s = 1.15)["fyk"]
-   
+   st.write(st.session_state["input_section"]["0"]['ha'])
    cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
                fyk_anima, 
@@ -517,7 +517,8 @@ if selected3 == "Verifiche":
                sigmaClasse[0], 
                sigmaClasse[1])
 
-   st.write(cAnima_slu["detail"][4])
+
+
    data_classe = {
       "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
       "compressione": [ None, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
@@ -528,13 +529,14 @@ if selected3 == "Verifiche":
    df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
    st.table(df_classe)
+   st.write("parametri classe 4")
+   st.write(cAnima_slu["detail"][4])
 
-   st.write("\delta")
 
    st.write("Calcolo della classe allo SLE (rara)")
    sigmaClasse = st.session_state["tension_rara"][0][4:6]
-   yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
-
+   yn = st.session_state["input_section"]["0"]['ha']*sigmaClasse[0]/(sigmaClasse[1]+sigmaClasse[0])
+   #st.write(yn)
    cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
                fyk_anima, 
@@ -554,6 +556,8 @@ if selected3 == "Verifiche":
    df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
    st.table(df_classe)
+   st.write("parametri classe 4")
+   st.write(cAnima_sle["detail"][4])
 
 
    
@@ -591,7 +595,7 @@ if selected3 == "Verifiche":
    st.markdown("""   
             ##### 3) Verifica a taglio - instabilità dell'anima (S.L.U.)
             """)
-
+   a = st.number_input("Insert a [mm]", None)
    #st.write(updated_dict_soll)
    Ved_pos = Sollecitazione_list(st.session_state["dict_soll"], condition = "positive", cds= "T")
    Ved_neg = Sollecitazione_list(st.session_state["dict_soll"], condition = "negative", cds= "T")
@@ -601,7 +605,7 @@ if selected3 == "Verifiche":
    taglio_anima = checkTaglio_Instabilita(st.session_state["input_section"]["0"]['ha'], 
                                           st.session_state["input_section"]["0"]['ta'], 
                                           355,
-                                          a = None)
+                                          a = a)
 
 
    dc1 = Ved_slu_pos[0]/taglio_anima

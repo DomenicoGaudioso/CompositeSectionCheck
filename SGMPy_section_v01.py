@@ -1,6 +1,7 @@
 import numpy as np
 from cmath import pi, sqrt
 import pandas as pd
+import streamlit as st
 #import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 from scipy.spatial import ConvexHull
@@ -670,12 +671,14 @@ def Classe3Anima(d, t, fyk, yn, sigma1, sigma2):
 def Classe4Anima(d, t, fyk, yn, sigma1, sigma2):
     eps = np.sqrt(235/fyk)
     a = d/t
-    alpha = yn
+    alpha = abs(d*sigma1/(abs(sigma1)+abs(sigma2)))
+    #alpha = abs(yn)
+    #st.write(alpha)
     ## CALCOLO CLASSE SEZIONALE - saldata
     
     # classe anima
     # CALCOLO PSI
-    psi = round(sigma1/sigma2,3)
+    psi = round(sigma2/sigma1,3)
     #print(sigma1, sigma2, "psi", psi)
     # CALCOLO COEFFICIENTE DI IMBOZZAMENTO
     ksigma = 4.0 if  psi == 1.00 else 8.2/(1.05+psi) if 1> psi >0 else 7.81 if psi == 0 else 7.81-6.29*psi + 9.78*psi**2 if 0> psi >-1 else 23.9 if psi == -1 else 5.98*(1-psi)**2 if -1> psi >-3 else print("WARNING: risulta fuori dalle condizioni impostate") 
@@ -688,21 +691,30 @@ def Classe4Anima(d, t, fyk, yn, sigma1, sigma2):
         beff = rid*d
         be1 = 0.5*beff
         be2 = 0.5*beff
+        delta = d - beff
+        bc = None
+        bt = None
     
     elif 1> psi >= 0:
         beff = rid*d
         be1 = 2*beff/(5-psi)
         be2 = beff - be1
+        delta = d - beff
+        bc = None
+        bt = None
         
     elif psi < 0:
         beff = rid*d/(1-psi)
         be1 = 0.4*beff
         be2 = 0.6*beff
+        bc = d*sigma1/(abs(sigma1)+abs(sigma2))
+        bt = d-abs(bc)
+        delta = abs(bc) - beff
     
     #flessione e compressione
-    alpha_tensionSup = alpha 
+    #alpha_tensionSup = alpha 
     
-    classe_4 = [be1, be2, beff]
+    classe_4 = {"be1": be1, "be2": be2, "beff": beff, "bc": bc, "bt": bt, "rho": rid, "delta": delta}
 
     return classe_4
 

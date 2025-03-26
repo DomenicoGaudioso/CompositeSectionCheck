@@ -585,51 +585,53 @@ def checkTaglio_Instabilita(d, tw, fy, a = None):
    epsilon = np.sqrt(235/fy)
    eta = 1.20
 
-   if a == None:
+   if a == None or a == 0:
       k_tau = 5.34
-   elif a/d < 1 and type(a) == "float":
+   elif a/d < 1 and a != None:
       k_tau = 4 + 5.34/(a/d)**2
-   elif a/d >= 1 and type(a) == "float":
+   elif a/d >= 1 and a != None:
       k_tau = 5.34 + 4/(a/d)**2
 
-   if a == None:
-      lambda_w = (d)/(86.4*epsilon*tw)
-   else:
-      lambda_w = (d/tw)/(37.4*epsilon*np.sqrt(k_tau)) # snellezza adimensioanle dell'anima
-   
-   ## calcolo tab = chi*tau_rd 
-   if lambda_w >= 1.08 and a != None: #Non rigid end post
-      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+   try:
+      if a == None:
+         lambda_w = (d)/(86.4*epsilon*tw)
+      else:
+         lambda_w = (d/tw)/(37.4*epsilon*np.sqrt(k_tau)) # snellezza adimensioanle dell'anima
+      ## calcolo tab = chi*tau_rd 
+      if lambda_w >= 1.08 and a != None: #Non rigid end post
+         tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
 
-   elif lambda_w <= 1.08 and lambda_w >= 0.83/eta: #Non rigid end post end rigid end post
-      tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
+      elif lambda_w <= 1.08 and lambda_w >= 0.83/eta: #Non rigid end post end rigid end post
+         tau_ba = (0.83/lambda_w)*(fy/np.sqrt(3))
 
-   elif lambda_w < 0.83/eta: #Non rigid end post end rigid end post
-      tau_ba = (eta)*(fy/np.sqrt(3))
-   
-   
-   Vba_rd = (d*tw*tau_ba)/(1.15*1000)
+      elif lambda_w < 0.83/eta: #Non rigid end post end rigid end post
+         tau_ba = (eta)*(fy/np.sqrt(3))
+      
+      
+      Vba_rd = (d*tw*tau_ba)/(1.15*1000)
 
-   st.markdown(fr"""
-   Fattore di imbozzamanto per taglio: 
-   $$k_{{\tau}} = {k_tau:.2f} \, \text{{}}$$
-   """)
+      st.markdown(fr"""
+      Fattore di imbozzamanto per taglio: 
+      $$k_{{\tau}} = {k_tau:.2f} \, \text{{}}$$
+      """)
 
-   st.markdown(fr"""
-   Snellezza adimensionale dell'anima: 
-   $$\overline{{\lambda}}_{{w}} = {lambda_w:.2f} \, \text{{}}$$
-   """)
+      st.markdown(fr"""
+      Snellezza adimensionale dell'anima: 
+      $$\overline{{\lambda}}_{{w}} = {lambda_w:.2f} \, \text{{}}$$
+      """)
 
-   st.markdown(fr"""
-   Resistenza post-critica a taglio: 
-   $${{\tau}}_{{ba}} = {tau_ba:.2f} \, \text{{MPa}}$$
-   """)
+      st.markdown(fr"""
+      Resistenza post-critica a taglio: 
+      $${{\tau}}_{{ba}} = {tau_ba:.2f} \, \text{{MPa}}$$
+      """)
 
-   st.markdown(fr"""
-   Resistenza a taglio: 
-   $$V_{{ba,Rd}} = {Vba_rd:.2f} \, \text{{KN}}$$
-   """)
-
+      st.markdown(fr"""
+      Resistenza a taglio: 
+      $$V_{{ba,Rd}} = {Vba_rd:.2f} \, \text{{KN}}$$
+      """)
+   except:
+      st.write("**Risulta necessario insertire irrigidimenti trasversali, settare il parametro a**")
+      Vba_rd = 0.0
 
    return Vba_rd
 
