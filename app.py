@@ -485,28 +485,42 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 1) Calcolo della classe sezionale
                """)
+   
    st.write("Calcolo della classe allo SLU")
 
    tp_inf = st.session_state["input_section"]["0"]['tPinf'] + st.session_state["input_section"]["0"]['trPinf']
    bp_inf = (st.session_state["input_section"]["0"]['tPinf']*st.session_state["input_section"]["0"]['bPinf'] + st.session_state["input_section"]["0"]['trPinf']*st.session_state["input_section"]["0"]['brPinf'])/tp_inf
    
-   cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, 335)
+   fyk_pinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                     st.session_state["input_section"]["0"]['tPinf'], 
+                     gamma_s = 1.15)["fyk"]
+   fyk_rpinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                     st.session_state["input_section"]["0"]['trPinf'], 
+                     gamma_s = 1.15)["fyk"]
+   fyk_pinf_equ = (fyk_pinf*st.session_state["input_section"]["0"]['tPinf'] + 
+                  fyk_rpinf*st.session_state["input_section"]["0"]['trPinf'])/(tp_inf)
+   
+   
+   cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, fyk_pinf_equ)
    
    sigmaClasse = st.session_state["tension_slu"][0][4:6]
+   yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
 
+   fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                     st.session_state["input_section"]["0"]['ta'], 
+                     gamma_s = 1.15)["fyk"]
+   
    cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
-               335, 
-               100, 
+               fyk_anima, 
+               yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
-   
-   
-   sigmaClasse = st.session_state["tension_rara"][0][4:6]
 
+   st.write(cAnima_slu["detail"][4])
    data_classe = {
       "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
-      "compressione": [ 1, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
+      "compressione": [ None, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
       "presso-inflessa": [ None, cAnima_slu["result"]["flessione e compressione"], None],
       }
 
@@ -515,12 +529,16 @@ if selected3 == "Verifiche":
    # Mostriamo la tabella
    st.table(df_classe)
 
+   st.write("\delta")
+
    st.write("Calcolo della classe allo SLE (rara)")
+   sigmaClasse = st.session_state["tension_rara"][0][4:6]
+   yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
 
    cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
-               335, 
-               100, 
+               fyk_anima, 
+               yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
 
@@ -528,7 +546,7 @@ if selected3 == "Verifiche":
 
    data_classe = {
       "flessione": [ None, cAnima_sle["result"]["flessione"] , None],
-      "compressione": [ 1, cAnima_sle["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
+      "compressione": [ None, cAnima_sle["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
       "presso-inflessa": [ None, cAnima_sle["result"]["flessione e compressione"], None],
       }
 
