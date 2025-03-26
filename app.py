@@ -222,7 +222,7 @@ if selected3 == "Sezione":
       cl4Dict = st.session_state["params_cl4slu"]
    except:
       cl4Dict = None
-   st.write(cl4Dict)
+   #st.write(cl4Dict)
    wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
    
    rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
@@ -513,7 +513,7 @@ if selected3 == "Verifiche":
    fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
                      st.session_state["input_section"]["0"]['ta'], 
                      gamma_s = 1.15)["fyk"]
-   st.write(st.session_state["input_section"]["0"]['ha'])
+   #st.write(st.session_state["input_section"]["0"]['ha'])
    cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
                st.session_state["input_section"]["0"]['ta'], 
                fyk_anima, 
@@ -676,7 +676,7 @@ if selected3 == "Verifiche":
                 st.session_state["input_section"]["0"]['ta'], 
                 sigma, 
                 Ved_slu_pos[2]*1000,
-                a = None,
+                a = a,
                 typeBridge = bridge_type)
    
 

@@ -722,16 +722,17 @@ def webBreathing(l, h, t, sigma, shear, a = None, typeBridge = "road bridges"):
       st.text("è necessaria la verifica del respiro dell'anima ")
 
    sigma_e = 190000*(t/h)**2
+   
 
 
    sigma1 = sigma[0]
    sigma2 = sigma[1]
-   psi = round(sigma1/sigma2,3)
+   psi = round(sigma2/sigma1,3)
    #print(sigma1, sigma2, "psi", psi)
    # CALCOLO COEFFICIENTE DI IMBOZZAMENTO
    ksigma = 4.0 if  psi == 1.00 else 8.2/(1.05+psi) if 1> psi >0 else 7.81 if psi == 0 else 7.81-6.29*psi + 9.78*psi**2 if 0> psi >-1 else 23.9 if psi == -1 else 5.98*(1-psi)**2 if -1> psi >-3 else print("WARNING: risulta fuori dalle condizioni impostate") 
-
-   if a == None:
+   #st.write(psi)
+   if a == None or a == 0.0:
       k_tau = 5.34
    elif a/h < 1 :
       k_tau = 4 + 5.34/(a/h)**2

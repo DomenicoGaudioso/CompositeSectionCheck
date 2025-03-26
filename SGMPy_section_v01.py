@@ -86,7 +86,7 @@ def plotSection_ploty(dictSection, center=False, propTable=False):
     fig = go.Figure()
 
     typeList = is_lista_annidata(dictSection["sec_point"])
-    print(dictSection["sec_point"][-1])
+    #print(dictSection["sec_point"][-1])
     if typeList:
         for i in dictSection["sec_point"]:
             
@@ -595,8 +595,8 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
         
     if cl4Dict != None: ## CALCOLO PROPRIETA' per CLASSE 4 DELLA SEZIONE
         ##WIP
-        print("ciao")
-        st.write(cl4Dict)
+        #print("ciao")
+        #st.write(cl4Dict)
         h1 = - trasl[1]-cl4Dict["delta"]
         h2 = - trasl[1]-cl4Dict["delta"]-cl4Dict["be1"]
 
@@ -609,12 +609,23 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
             # Ruotare ciascun punto del poligono
             coordinates = [rotate_point(point, angle_radians, coordinates[0]) for point in coordinates]
         
-        elasticProp_neg = propCalc(coordinates)
-        elasticProp_neg = propCalc(coordinates)
+        elasticPropInst = propCalc(coordinates)
         #elasticProp["mat"] = steel_ntc18(material, t, gamma_s = 1.15)
+        Atot = elasticProp["A"] - elasticPropInst["A"]
+        yg = (elasticProp["A"]*elasticProp["Pg"][1] - elasticPropInst["A"]*elasticPropInst["Pg"][1])/Atot
+        Iy = elasticProp["Iy"] + elasticProp["A"]*(yg-elasticProp["Pg"][1])**2 - elasticPropInst["Iy"]-elasticPropInst["A"]*(yg-elasticPropInst["Pg"][1])**2
+        Iz = elasticProp["Iz"] - elasticPropInst["Iz"]-elasticPropInst["A"]*(0-elasticPropInst["Pg"][0])**2
         
+        elasticProp["A"] = Atot
+        elasticProp["Pg"][1] = yg
+        elasticProp["Iy"] = Iy
+        elasticProp["Iz"] = Iz
+        #st.write(elasticProp)
+        
+        elasticProp["sec_point"]= (elasticProp["sec_point"], coordinates)
+        #st.write(elasticProp)
     else:
-        propDict = elasticProp 
+        st.write("qualcosa non cosa")
 
     return elasticProp 
 
@@ -963,9 +974,10 @@ def builtSection(listDict):
     
     for i in listDict:
         if any(isinstance(elemento, list) for elemento in i['sec_point']):
-            listPoint.append(i['sec_point'][0]) # per le classi 4 da sottrarre
+            for j in i['sec_point']:
+                listPoint.append(j) # per le classi 4 da sottrarre
         else:
-            listPoint.append(i['sec_point']) # per le classi 4 da sottrarre
+            listPoint.append(i['sec_point'])
         
     
     # CALCOLO PROPRIETA' DELLA SEZIONE
@@ -1029,7 +1041,6 @@ def CompositeSection(SteelSection, ClsSection, dictListBar, n=6):
             coordinates.append(iBar)#+ [idict['sec_point'] for idict in dictListBar]
     
     coordinates = coordinates + [ClsSection['sec_point']] + SteelSection['sec_point']#+ [idict['sec_point'] for idict in dictListBar]
-    print(SteelSection['sec_point'])
     
     ay = (ClsSection["A"]/n + SteelSection["Ay"])/Atot
     Ay = ClsSection["A"]/n + SteelSection["Ay"]
