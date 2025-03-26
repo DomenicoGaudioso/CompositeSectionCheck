@@ -217,12 +217,12 @@ if selected3 == "Sezione":
    gapCls = hpredall+Hcls
    PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material=mat_steel)
    rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
-   #vribs1 = V_rib(283, 300, 25, 6, [0, 70+16]) #cl4Dict={"Binst":75, "Be1":60}
+   
    try:
       cl4Dict = st.session_state["params_cl4slu"]
    except:
       cl4Dict = None
-   #st.write(cl4Dict)
+   st.write(cl4Dict)
    wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
    
    rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
@@ -520,8 +520,12 @@ if selected3 == "Verifiche":
                yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
-   st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
-   st.write(st.session_state["params_cl4slu"])
+   
+   classeAnimaSLU = max(cAnima_slu["result"]["flessione"], cAnima_slu["result"]["compressione"],cAnima_slu["result"]["flessione e compressione"])
+   if classeAnimaSLU == 4:
+      st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
+   else:
+      st.session_state["params_cl4slu"] = None
 
 
 
@@ -549,7 +553,12 @@ if selected3 == "Verifiche":
                yn, 
                sigmaClasse[0], 
                sigmaClasse[1])
-   st.session_state["params_cl4sle"] = cAnima_sle["detail"][4]
+   
+   classeAnimaSLE = max(cAnima_sle["result"]["flessione"], cAnima_sle["result"]["compressione"],cAnima_sle["result"]["flessione e compressione"])
+   if classeAnimaSLE == 4:
+      st.session_state["params_cl4sle"] = cAnima_sle["detail"][4]
+   else:
+      st.session_state["params_cl4sle"] = None
    #st.write(cAnima)
 
    data_classe = {

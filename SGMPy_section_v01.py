@@ -592,13 +592,13 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
     #print("Momento d'inerzia rispetto all'asse y", elasticProp["Iz"])
     
 
-        
+    st.write(cl4Dict)
     if cl4Dict != None: ## CALCOLO PROPRIETA' per CLASSE 4 DELLA SEZIONE
         ##WIP
         #print("ciao")
         #st.write(cl4Dict)
-        h1 = - trasl[1]-cl4Dict["delta"]
-        h2 = - trasl[1]-cl4Dict["delta"]-cl4Dict["be1"]
+        h1 = - trasl[1]-cl4Dict["be1"] 
+        h2 = - trasl[1] -cl4Dict["be1"] - cl4Dict["delta"]
 
         X = [-t/2+trasl[0], -t/2+trasl[0], t/2+trasl[0], t/2+trasl[0]]
         Y = [h1, h2, h2, h1]
