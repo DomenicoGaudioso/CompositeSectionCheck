@@ -40,9 +40,9 @@ with st.sidebar:
 txtName2 = " **⛏️ :rainbow[ISCT]**  -- :red[**I**]:gray[]  :orange[**S**]:gray[ection] :green[**C**]:gray[omposite] :green[**T**]:gray[ool]"
             
 st.markdown(txtName2)
-selected3 = option_menu(None, ["Documentazione", "Sollecitazioni", "Sezione", "Tensioni", "Verifiche"],
+selected3 = option_menu(None, ["Documentazione", "Input", "Tensioni", "Verifiche"],
                          
-    icons=['book-half', 'cloud-arrow-up-fill', "magic", "triangle", "clipboard2-pulse-fill"], 
+    icons=['book-half', 'cloud-arrow-up-fill', "triangle", "clipboard2-pulse-fill"], 
     menu_icon="cast", default_index=0, orientation="horizontal"
 )
 
@@ -52,28 +52,27 @@ input_data = {}
 if selected3 == "Documentazione":
    st.title("Documentazione in WIP")
 
-
-try:
-   st.session_state["df_soll"]
-except:
-   Sollecitazioni = {'G1+':{'N': -0.0, 'T': 65, 'Mf': 89, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
-                     'G2+':{'N': 0.0, 'T': 74, 'Mf': 77, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
-                     'R+':{ 'N': -1314, 'T': 0.0, 'Mf': 383, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
-                     'Mfat+':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, 'Mfat-':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, # fatica
-                     'MQ+':{ 'N': 0.0, 'T': 286, 'Mf': 336, 'Mt': 0.0}, 'MQ-':{ 'N': 0.0, 'T': -248, 'Mf': -91.0, 'Mt': 0.0}, # mobili concentrati
-                     'Md+':{'N': 0.0, 'T': 34, 'Mf': 48, 'Mt': 0.0}, 'Md-':{ 'N': 0.0, 'T': -37, 'Mf': -16, 'Mt': 0.0}, # mobili distribuiti
-                     'Mf+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0, 'Mt': 0.0}, 'Mf-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # folla
-                     'T+':{ 'N': -1000, 'T':2, 'Mf': 156, 'Mt': 0.0}, 'T-':{ 'N': 1000, 'T': -2, 'Mf': -156, 'Mt': 0.0},   # termica
-                     'C+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'C-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # cedimenti
-                     'V+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # vento
-         }
+   
+if selected3 == "Input":
+   try:
+      st.session_state["df_soll"]
+   except:
+      Sollecitazioni = {'G1+':{'N': -0.0, 'T': 65, 'Mf': 89, 'Mt': 0.0}, 'G1-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # peso proprio
+                        'G2+':{'N': 0.0, 'T': 74, 'Mf': 77, 'Mt': 0.0}, 'G2-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # permanenti portati
+                        'R+':{ 'N': -1314, 'T': 0.0, 'Mf': 383, 'Mt': 0.0}, 'R-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},  # ritiro
+                        'Mfat+':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, 'Mfat-':{ 'N': 0.0, 'T': 0, 'Mf': 0.0, 'Mt': 0.0}, # fatica
+                        'MQ+':{ 'N': 0.0, 'T': 286, 'Mf': 336, 'Mt': 0.0}, 'MQ-':{ 'N': 0.0, 'T': -248, 'Mf': -91.0, 'Mt': 0.0}, # mobili concentrati
+                        'Md+':{'N': 0.0, 'T': 34, 'Mf': 48, 'Mt': 0.0}, 'Md-':{ 'N': 0.0, 'T': -37, 'Mf': -16, 'Mt': 0.0}, # mobili distribuiti
+                        'Mf+':{ 'N': 0.0, 'T': 0.0, 'Mf': 0, 'Mt': 0.0}, 'Mf-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0}, # folla
+                        'T+':{ 'N': -1000, 'T':2, 'Mf': 156, 'Mt': 0.0}, 'T-':{ 'N': 1000, 'T': -2, 'Mf': -156, 'Mt': 0.0},   # termica
+                        'C+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'C-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # cedimenti
+                        'V+':{ 'N': 0.0, 'T': 0, 'Mf': 0, 'Mt': 0.0}, 'V-':{ 'N': 0.0, 'T': 0.0, 'Mf': 0.0, 'Mt': 0.0},   # vento
+            }
 
    # Convert dictionary to DataFrame
    df = pd.DataFrame(Sollecitazioni).T.reset_index()
    df.rename(columns={'index': 'Tipo'}, inplace=True)
    st.session_state["df_soll_input"] = df
-   
-if selected3 == "Sollecitazioni":
 
    # Editable table using st.data_editor
    st.title("Edit Sollecitazioni")
@@ -92,45 +91,42 @@ if selected3 == "Sollecitazioni":
 
    st.session_state["dict_soll"] = updated_dict_soll
    
-try:
-   input_section = st.session_state["input_section"].T
-except:
-   input_section = { 'l': [12*1000], #lunghezza del concio
-                  
-                     "bPsup": [250], #larghezza piattabanda superiore
-                     'tPsup': [20], #spessore piattabanda superiore
-                     "brPsup": [0], # larghezza raddoppio piattabanda superiore
-                     'trPsup': [0], #spessore raddoppio piattabanda superiore
-                     "ha": [360], #altezza anima
-                     "ta": [12], #spessore anima
-                     "brPinf": [0], #larghezza raddoppio piattabanda inferiore
-                     'trPinf': [0], #spessore raddoppio piattabanda inferiore
-                     "bPinf": [300], #larghezza piattabanda inferiore
-                     'tPinf': [20], #spessore piattabanda inferiore
+   try:
+      input_section = st.session_state["input_section"].T
+   except:
+      input_section = { 'l': [12*1000], #lunghezza del concio
+                     
+                        "bPsup": [250], #larghezza piattabanda superiore
+                        'tPsup': [20], #spessore piattabanda superiore
+                        "brPsup": [0], # larghezza raddoppio piattabanda superiore
+                        'trPsup': [0], #spessore raddoppio piattabanda superiore
+                        "ha": [360], #altezza anima
+                        "ta": [12], #spessore anima
+                        "brPinf": [0], #larghezza raddoppio piattabanda inferiore
+                        'trPinf': [0], #spessore raddoppio piattabanda inferiore
+                        "bPinf": [300], #larghezza piattabanda inferiore
+                        'tPinf': [20], #spessore piattabanda inferiore
 
-                     "hcls": [204],
-                     "h_predalle": [6],
-                     "Bcls": [1500],
+                        "hcls": [204],
+                        "h_predalle": [6],
+                        "Bcls": [1500],
 
-                     "phi_sup": [20], 
-                     "int_sup": [400],
-                     "phi_inf": [1], 
-                     "int_inf": [500],
+                        "phi_sup": [20], 
+                        "int_sup": [400],
+                        "phi_inf": [1], 
+                        "int_inf": [500],
 
-                     "n_inf": [14.64], 
-                     "n_0": [6.16],
-                     "n_r": [14.06], 
-                     "n_c": [17.73],
+                        "n_inf": [14.64], 
+                        "n_0": [6.16],
+                        "n_r": [14.06], 
+                        "n_c": [17.73],
 
-                     "c_sup": [58], 
-                     "c_inf": [40],
+                        "c_sup": [58], 
+                        "c_inf": [40],
 
-                     "mat_cls": ["C35/45"],
-                     "mat_steel": ["S355"],
-                     }
-
-
-if selected3 == "Sezione":
+                        "mat_cls": ["C35/45"],
+                        "mat_steel": ["S355"],
+                        }
 
 
    # Convert dictionary to DataFrame
@@ -189,8 +185,6 @@ if selected3 == "Sezione":
 
    mat_cls = edited_df_sec.loc['mat_cls'][0]
    mat_steel = edited_df_sec.loc['mat_steel'][0]
-
-
 
 
    ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
@@ -318,54 +312,100 @@ if selected3 == "Sezione":
    st.session_state["hi_plot"] = hi_plot
 
 
-Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
+   Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
+
+   with st.spinner("⏳ Calcolando le verifiche..."):
+
+      tension_plot_plus, list_tension = tension(st.session_state["dictProp"], 
+                                                st.session_state["dict_soll"], 
+                                                st.session_state["hi_plot"][0:9],
+                                                condition = "positive",
+                                                n0 = st.session_state["input_section"]["0"]["n_0"],
+                                                ninf = st.session_state["input_section"]["0"]["n_inf"],
+                                                nr = st.session_state["input_section"]["0"]["n_r"],
+                                                nc = st.session_state["input_section"]["0"]["n_c"]
+                                                )
+
+      #st.write(st.session_state["hi_plot"][0:9])
+      # using naive method
+      # to convert lists to dictionary
+
+      ## COEFFICIENTI DI SICUREZZA SULLE AZIONI
+      gamma = pd.read_excel('coefficienti.xlsx', "gamma", index_col=0) 
+      psi = pd.read_excel('coefficienti.xlsx', "psi", index_col=0) 
+      st.write(gamma)
+      st.write(psi)
+
+      ## TENSIONI COMBINATE
+
+      tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
+
+
+      tension_plot_neg, list_tension_neg = tension(st.session_state["dictProp"], 
+                                                st.session_state["dict_soll"], 
+                                                st.session_state["hi_plot"][0:9],
+                                                condition = "negative",
+                                                n0 = st.session_state["input_section"]["0"]["n_0"],
+                                                ninf = st.session_state["input_section"]["0"]["n_inf"],
+                                                nr = st.session_state["input_section"]["0"]["n_r"],
+                                                nc = st.session_state["input_section"]["0"]["n_c"]
+                                                )
+      
+      st.session_state["plot_tension_pos"] = tension_plot_plus
+      st.session_state["plot_tension_neg"] = tension_plot_neg
+      st.session_state["list_tension_pos"] = list_tension
+      st.session_state["list_tension_neg"] = list_tension_neg
+   
+      tension_slu_neg, tension_rara_neg, tension_frequente_neg, tension_qp_neg = combinazione(list_tension_neg)
+
+      st.session_state["tension_slu"] = [tension_slu, tension_slu_neg]
+      st.session_state["tension_rara"] = [tension_rara, tension_rara_neg]
+      st.session_state["tension_frequente"] = [tension_frequente, tension_frequente_neg]
+      st.session_state["tension_qp"] = [tension_qp, tension_qp_neg]
+
+
+      hi_plot_comb = st.session_state["hi_plot"][0:9]+[st.session_state["hi_plot"][0:9][-1], 0, 0]
+      slu_plot = tension_plot(st.session_state["tension_slu"][0], hi_plot_comb)
+      rara_plot = tension_plot(st.session_state["tension_rara"][0], hi_plot_comb)
+      freq_plot = tension_plot(st.session_state["tension_frequente"][0], hi_plot_comb)
+      qp_plot = tension_plot(st.session_state["tension_qp"][0], hi_plot_comb)
+
+      slu_plot_neg = tension_plot(st.session_state["tension_slu"][1], hi_plot_comb)
+      rara_plot_neg = tension_plot(st.session_state["tension_rara"][1], hi_plot_comb)
+      freq_plot_neg = tension_plot(st.session_state["tension_frequente"][1], hi_plot_comb)
+      qp_plot_neg = tension_plot(st.session_state["tension_qp"][1], hi_plot_comb)
 
 if selected3 == "Tensioni":
-   ## PLOT TENSION POSITIVE
-   
-   tension_plot_plus, list_tension = tension(st.session_state["dictProp"], 
-                                             st.session_state["dict_soll"], 
-                                             st.session_state["hi_plot"][0:9],
-                                             condition = "positive",
-                                             n0 = st.session_state["input_section"]["0"]["n_0"],
-                                             ninf = st.session_state["input_section"]["0"]["n_inf"],
-                                             nr = st.session_state["input_section"]["0"]["n_r"],
-                                             nc = st.session_state["input_section"]["0"]["n_c"]
-                                             )
-
-   #st.write(st.session_state["hi_plot"][0:9])
-   # using naive method
-   # to convert lists to dictionary
    test_keys = ["g1", "g2", "r", "Mf", "Mts", "Mudl", "Mfolla", "T", "C", "V", "totale"]
    tension_table_print = {}
    for i, key in enumerate(test_keys):
-      tension_table_print[key] = list_tension[i]
+      tension_table_print[key] = st.session_state["list_tension_pos"][i]
 
    st.title("Tensioni M+")
    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11  = st.tabs(test_keys)
-
+   ## PLOT TENSION POSITIVE
    with tab1:
-      st.plotly_chart(tension_plot_plus[0], use_container_width=True, key= "tension_g1+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][0], use_container_width=True, key= "tension_g1+")
    with tab2:
-      st.plotly_chart(tension_plot_plus[1], use_container_width=True, key= "tension_g2+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][1], use_container_width=True, key= "tension_g2+")
    with tab3:
-      st.plotly_chart(tension_plot_plus[2], use_container_width=True, key= "tension_r+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][2], use_container_width=True, key= "tension_r+")
    with tab4:
-      st.plotly_chart(tension_plot_plus[3], use_container_width=True, key= "tension_Mf+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][3], use_container_width=True, key= "tension_Mf+")
    with tab5:
-      st.plotly_chart(tension_plot_plus[4], use_container_width=True, key= "tension_Mts+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][4], use_container_width=True, key= "tension_Mts+")
    with tab6:
-      st.plotly_chart(tension_plot_plus[5], use_container_width=True, key= "tension_Mudl+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][5], use_container_width=True, key= "tension_Mudl+")
    with tab7:
-      st.plotly_chart(tension_plot_plus[6], use_container_width=True, key= "tension_Mfolla+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][6], use_container_width=True, key= "tension_Mfolla+")
    with tab8:
-      st.plotly_chart(tension_plot_plus[7], use_container_width=True, key= "tension_t+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][7], use_container_width=True, key= "tension_t+")
    with tab9:
-      st.plotly_chart(tension_plot_plus[8], use_container_width=True, key= "tension_c+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][8], use_container_width=True, key= "tension_c+")
    with tab10:
-      st.plotly_chart(tension_plot_plus[9], use_container_width=True, key= "tension_v+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][9], use_container_width=True, key= "tension_v+")
    with tab11:
-      st.plotly_chart(tension_plot_plus[10], use_container_width=True, key= "tension_tot+")
+      st.plotly_chart(st.session_state["plot_tension_pos"][10], use_container_width=True, key= "tension_tot+")
 
    df_tension = pd.DataFrame.from_dict(tension_table_print, orient = "index").T #.reset_index()
    st.write(df_tension)
@@ -375,78 +415,38 @@ if selected3 == "Tensioni":
    st.title("Tensioni M-")
    tab12, tab13, tab14, tab15, tab16, tab17, tab18, tab19, tab20, tab21, tab22 = st.tabs(test_keys)
 
-   tension_plot_neg, list_tension_neg = tension(st.session_state["dictProp"], 
-                                             st.session_state["dict_soll"], 
-                                             st.session_state["hi_plot"][0:9],
-                                             condition = "negative",
-                                             n0 = st.session_state["input_section"]["0"]["n_0"],
-                                             ninf = st.session_state["input_section"]["0"]["n_inf"],
-                                             nr = st.session_state["input_section"]["0"]["n_r"],
-                                             nc = st.session_state["input_section"]["0"]["n_c"]
-                                             )
-   
-   st.session_state["list_tension_pos"] = list_tension
-   st.session_state["list_tension_neg"] = list_tension_neg
-
    # using naive method
    # to convert lists to dictionary
    tension_table_print_negative = {}
    for i, key in enumerate(test_keys):
-      tension_table_print_negative[key] = list_tension_neg[i]
+      tension_table_print_negative[key] = st.session_state["list_tension_neg"][i]
 
    with tab12:
-      st.plotly_chart(tension_plot_neg[0], use_container_width=True, key= "tension_g1-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][0], use_container_width=True, key= "tension_g1-")
    with tab13:
-      st.plotly_chart(tension_plot_neg[1], use_container_width=True, key= "tension_g2-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][1], use_container_width=True, key= "tension_g2-")
    with tab14:
-      st.plotly_chart(tension_plot_neg[2], use_container_width=True, key= "tension_r-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][2], use_container_width=True, key= "tension_r-")
    with tab15:
-      st.plotly_chart(tension_plot_neg[3], use_container_width=True, key= "tension_Mf-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][3], use_container_width=True, key= "tension_Mf-")
    with tab16:
-      st.plotly_chart(tension_plot_neg[4], use_container_width=True, key= "tension_Mts-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][4], use_container_width=True, key= "tension_Mts-")
    with tab17:
-      st.plotly_chart(tension_plot_neg[5], use_container_width=True, key= "tension_Mudl-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][5], use_container_width=True, key= "tension_Mudl-")
    with tab18:
-      st.plotly_chart(tension_plot_neg[6], use_container_width=True, key= "tension_Mfolla-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][6], use_container_width=True, key= "tension_Mfolla-")
    with tab19:
-      st.plotly_chart(tension_plot_neg[7], use_container_width=True, key= "tension_t-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][7], use_container_width=True, key= "tension_t-")
    with tab20:
-      st.plotly_chart(tension_plot_neg[8], use_container_width=True, key= "tension_c-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][8], use_container_width=True, key= "tension_c-")
    with tab21:
-      st.plotly_chart(tension_plot_neg[9], use_container_width=True, key= "tension_v-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][9], use_container_width=True, key= "tension_v-")
    with tab22:
-      st.plotly_chart(tension_plot_neg[10], use_container_width=True, key= "tension_tot-")
+      st.plotly_chart(st.session_state["plot_tension_neg"][10], use_container_width=True, key= "tension_tot-")
 
    df_tension_neg = pd.DataFrame.from_dict(tension_table_print_negative, orient = "index").T #.reset_index()
    st.write(df_tension_neg)
 
-   ## COEFFICIENTI DI SICUREZZA SULLE AZIONI
-   gamma = pd.read_excel('coefficienti.xlsx', "gamma", index_col=0) 
-   psi = pd.read_excel('coefficienti.xlsx', "psi", index_col=0) 
-   st.write(gamma)
-   st.write(psi)
-   #ClasseAnima(d, t, fyk, yn, sigma1, sigma2)
-
-   ## TENSIONI COMBINATE
-   tension_slu, tension_rara, tension_frequente, tension_qp = combinazione(list_tension)
-   tension_slu_neg, tension_rara_neg, tension_frequente_neg, tension_qp_neg = combinazione(list_tension_neg)
-
-   st.session_state["tension_slu"] = [tension_slu, tension_slu_neg]
-   st.session_state["tension_rara"] = [tension_rara, tension_rara_neg]
-   st.session_state["tension_frequente"] = [tension_frequente, tension_frequente_neg]
-   st.session_state["tension_qp"] = [tension_qp, tension_qp_neg]
-
-
-   hi_plot_comb = st.session_state["hi_plot"][0:9]+[st.session_state["hi_plot"][0:9][-1], 0, 0]
-   slu_plot = tension_plot(st.session_state["tension_slu"][0], hi_plot_comb)
-   rara_plot = tension_plot(st.session_state["tension_rara"][0], hi_plot_comb)
-   freq_plot = tension_plot(st.session_state["tension_frequente"][0], hi_plot_comb)
-   qp_plot = tension_plot(st.session_state["tension_qp"][0], hi_plot_comb)
-
-   slu_plot_neg = tension_plot(st.session_state["tension_slu"][1], hi_plot_comb)
-   rara_plot_neg = tension_plot(st.session_state["tension_rara"][1], hi_plot_comb)
-   freq_plot_neg = tension_plot(st.session_state["tension_frequente"][1], hi_plot_comb)
-   qp_plot_neg = tension_plot(st.session_state["tension_qp"][1], hi_plot_comb)
 
    #st.write(hi_plot_comb)
    #st.write(tension_slu)
