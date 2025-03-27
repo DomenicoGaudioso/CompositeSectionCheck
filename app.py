@@ -132,6 +132,12 @@ if selected3 == "Input":
    # Convert dictionary to DataFrame
    df_section = pd.DataFrame.from_dict(input_section, orient = "index") #.reset_index()
 
+   st.title("Coefficienti di combinazione")
+   ## COEFFICIENTI DI SICUREZZA SULLE AZIONI
+   gamma = pd.read_excel('coefficienti.xlsx', "gamma", index_col=0) 
+   psi = pd.read_excel('coefficienti.xlsx', "psi", index_col=0) 
+   st.write(gamma)
+   st.write(psi)
 
    # Editable table using st.data_editor
    st.title("Edit Sezione")
@@ -147,174 +153,168 @@ if selected3 == "Input":
    # convert back to dictionary
    updated_df_sec = edited_df_sec.applymap(lambda x: np.float64(x) if str(x).replace('.', '', 1).isdigit() else x)
    updated_dict_section = updated_df_sec.to_dict()
+
    st.json(updated_dict_section , expanded=False)
    st.session_state["input_section"] = updated_dict_section
 
-   ##INPUT
-   # Extract updated values from the table
-   Hcls = float(edited_df_sec.loc["hcls"][0])
-   Bcls = float(edited_df_sec.loc['Bcls'][0])
-   hpredall = float(edited_df_sec.loc['h_predalle'][0])
-   phi_sup = float(edited_df_sec.loc['phi_sup'][0])
-   int_sup = float(edited_df_sec.loc['int_sup'][0])
-   phi_inf = float(edited_df_sec.loc['phi_inf'][0])
-   int_inf = float(edited_df_sec.loc['int_inf'][0])
 
-   bf = float(edited_df_sec.loc['bPsup'][0])
-   tbf = float(edited_df_sec.loc['tPsup'][0])
+   for iter in range(0, 4):
+      ##INPUT
+      # Extract updated values from the table
+      Hcls = float(edited_df_sec.loc["hcls"][0])
+      Bcls = float(edited_df_sec.loc['Bcls'][0])
+      hpredall = float(edited_df_sec.loc['h_predalle'][0])
+      phi_sup = float(edited_df_sec.loc['phi_sup'][0])
+      int_sup = float(edited_df_sec.loc['int_sup'][0])
+      phi_inf = float(edited_df_sec.loc['phi_inf'][0])
+      int_inf = float(edited_df_sec.loc['int_inf'][0])
 
-   bf_r = float(edited_df_sec.loc['brPsup'][0])
-   tbrf = float(edited_df_sec.loc['trPsup'][0])
+      bf = float(edited_df_sec.loc['bPsup'][0])
+      tbf = float(edited_df_sec.loc['tPsup'][0])
 
-   hw = float(edited_df_sec.loc['ha'][0])
-   tw = float(edited_df_sec.loc['ta'][0])
+      bf_r = float(edited_df_sec.loc['brPsup'][0])
+      tbrf = float(edited_df_sec.loc['trPsup'][0])
 
-   rbf_inf = float(edited_df_sec.loc['brPinf'][0])
-   rtbf_inf = float(edited_df_sec.loc['trPinf'][0])
+      hw = float(edited_df_sec.loc['ha'][0])
+      tw = float(edited_df_sec.loc['ta'][0])
 
-   binf = float(edited_df_sec.loc['bPinf'][0])
-   tbf_inf = float(edited_df_sec.loc['tPinf'][0])
+      rbf_inf = float(edited_df_sec.loc['brPinf'][0])
+      rtbf_inf = float(edited_df_sec.loc['trPinf'][0])
 
-   ninf = float(edited_df_sec.loc['n_inf'][0])
-   n0 = float(edited_df_sec.loc['n_0'][0])
-   nr = float(edited_df_sec.loc['n_r'][0])
-   nc = float(edited_df_sec.loc['n_c'][0])
+      binf = float(edited_df_sec.loc['bPinf'][0])
+      tbf_inf = float(edited_df_sec.loc['tPinf'][0])
 
-   c_sup = float(edited_df_sec.loc['c_sup'][0])
-   c_inf = float(edited_df_sec.loc['c_inf'][0])
+      ninf = float(edited_df_sec.loc['n_inf'][0])
+      n0 = float(edited_df_sec.loc['n_0'][0])
+      nr = float(edited_df_sec.loc['n_r'][0])
+      nc = float(edited_df_sec.loc['n_c'][0])
 
-   mat_cls = edited_df_sec.loc['mat_cls'][0]
-   mat_steel = edited_df_sec.loc['mat_steel'][0]
+      c_sup = float(edited_df_sec.loc['c_sup'][0])
+      c_inf = float(edited_df_sec.loc['c_inf'][0])
 
-
-   ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
-   clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
-   #armature superiori
-   nbar_sup = int(Bcls/int_sup)
-   delta_xsup = (Bcls - (nbar_sup-1)*int_sup)/2
-   pointG0 = [[-(Bcls*0.5 - delta_xsup) + int_sup*i, c_sup] for i in range(0, nbar_sup)]
-   #armature inferiori
-   nbar_inf = int(Bcls/int_inf)
-   delta_xinf = (Bcls - (nbar_inf-1)*int_inf)/2
-   pointG1 = [[-(Bcls*0.5 - delta_xinf) + int_inf*i, Hcls-c_inf-hpredall] for i in range(0, nbar_inf)]
-   b0 = renforcementBar(phi_sup, pointG0)
-   b1 = renforcementBar(phi_inf, pointG1)
-   st.session_state["clsSection"] = clsSection
-   st.session_state["cls_bar"] = [b0, b1]
-
-   # = rectangularCA(clsSection, [b0, b1])
-   #cplot = plotSection_ploty(c)
-   #cplot.show()
+      mat_cls = edited_df_sec.loc['mat_cls'][0]
+      mat_steel = edited_df_sec.loc['mat_steel'][0]
 
 
-   ## COSTRUZIONE SEZIONE IN ACCIAIO 
-   gapCls = hpredall+Hcls
-   PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material=mat_steel)
-   rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
-   
-   try:
-      cl4Dict = st.session_state["params_cl4slu"]
-   except:
-      cl4Dict = None
-   st.write(cl4Dict)
-   wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
-   
-   rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
-   PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material=mat_steel)
+      ## COSTRUZIONE SOLETTA IN CALCESTRUZZO
+      clsSection = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
+      #armature superiori
+      nbar_sup = int(Bcls/int_sup)
+      delta_xsup = (Bcls - (nbar_sup-1)*int_sup)/2
+      pointG0 = [[-(Bcls*0.5 - delta_xsup) + int_sup*i, c_sup] for i in range(0, nbar_sup)]
+      #armature inferiori
+      nbar_inf = int(Bcls/int_inf)
+      delta_xinf = (Bcls - (nbar_inf-1)*int_inf)/2
+      pointG1 = [[-(Bcls*0.5 - delta_xinf) + int_inf*i, Hcls-c_inf-hpredall] for i in range(0, nbar_inf)]
+      b0 = renforcementBar(phi_sup, pointG0)
+      b1 = renforcementBar(phi_inf, pointG1)
+      st.session_state["clsSection"] = clsSection
+      st.session_state["cls_bar"] = [b0, b1]
 
-   st.session_state["gapCls"] = gapCls
-   st.session_state["PlateSup"] = PlateSup
-   st.session_state["rPlateSup"] = rPlateSup
-   st.session_state["wPlate1"] = wPlate1
-   st.session_state["rPlateInf"] = rPlateInf
-   st.session_state["PlateInf"] = PlateInf
+      # = rectangularCA(clsSection, [b0, b1])
+      #cplot = plotSection_ploty(c)
+      #cplot.show()
 
-   # if tbf == 0 or tw == 0 or tbf_inf == 0:
-   #    st.warning("parametri essenziali non settati")
+      ## COSTRUZIONE SEZIONE IN ACCIAIO 
+      gapCls = hpredall+Hcls
+      PlateSup = OrizontalPlate(bf, tbf, [0, gapCls], material=mat_steel)
+      rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
+      
+      try:
+         cl4Dict = st.session_state["params_cl4slu"]
+      except:
+         cl4Dict = None
+      
+      wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+      
+      rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
+      PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material=mat_steel)
 
-   # if tbrf == 0 and rtbf_inf == 0:
-   #    listDict = [PlateSup, wPlate1, PlateInf]
+      st.session_state["gapCls"] = gapCls
+      st.session_state["PlateSup"] = PlateSup
+      st.session_state["rPlateSup"] = rPlateSup
+      st.session_state["wPlate1"] = wPlate1
+      st.session_state["rPlateInf"] = rPlateInf
+      st.session_state["PlateInf"] = PlateInf
 
-   # elif tbrf == 0 and rtbf_inf != 0:
-   #    listDict = [PlateSup, wPlate1, rPlateInf, PlateInf]
+      # if tbf == 0 or tw == 0 or tbf_inf == 0:
+      #    st.warning("parametri essenziali non settati")
 
-   # elif tbrf != 0 and rtbf_inf == 0:
-   #    listDict = [PlateSup, rPlateSup, wPlate1, PlateInf]
+      # if tbrf == 0 and rtbf_inf == 0:
+      #    listDict = [PlateSup, wPlate1, PlateInf]
 
-   # elif tbrf != 0 and rtbf_inf != 0:
-   #    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
+      # elif tbrf == 0 and rtbf_inf != 0:
+      #    listDict = [PlateSup, wPlate1, rPlateInf, PlateInf]
 
+      # elif tbrf != 0 and rtbf_inf == 0:
+      #    listDict = [PlateSup, rPlateSup, wPlate1, PlateInf]
 
-   listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
-   Isection = builtSection(listDict)
-   st.session_state["listDict"] = listDict
-   #PARTIRE DA QUI PER CREARE IL MOMENTO STATICO PER IL CALCOLO DELLA FORZA NELLE SALDATURE
-
-   #print(Isection)
-
-   SectionComposite_I = CompositeSection(Isection, clsSection, [b0, b1], n0)
-   cplot = plotSection_ploty(SectionComposite_I)
-   #plot section in STREAMLIT
-   st.plotly_chart(cplot , use_container_width=True)
-   #cplot.show()
-
-   listParams = ["A", "Ay", "Az", "Iy", "Iz", "It", "Pg", "ay", "az"]
-   dictProp = {}
-   table = {}
-
-   #Fase 1 - Only steel
-   dictProp["g1"] = Isection
-
-   #Fase 2 - G2 - t inf
-   SectionComposite_g2 = CompositeSection(Isection, clsSection, [b0, b1], ninf)
-   dictProp["g2"] = SectionComposite_g2
-
-   #Fase 3 - R - ritiro
-   SectionComposite_r = CompositeSection(Isection, clsSection, [b0, b1], nr)
-   dictProp["r"] = SectionComposite_r 
-
-   #Fase 4 - C - cedimenti
-   SectionComposite_c = CompositeSection(Isection, clsSection, [b0, b1], nc)
-   dictProp["c"] = SectionComposite_c
-
-   #Fase 5 - Qm - mobili
-   SectionComposite_m = CompositeSection(Isection, clsSection, [b0, b1], n0)
-   dictProp["mobili"] = SectionComposite_m
-
-   #Fase 6 - Fessurato
-   clsSection_F = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
-   SectionComposite_f = CompositeSection(Isection, clsSection_F, [b0, b1], 100000000000)
-   dictProp["fe"] = SectionComposite_f
-
-   st.session_state["dictProp"] = dictProp
-
-   # per print table
-   table["g1"] = { i :dictProp["g1"][i] for i in listParams}
-   table["g2"] = { i :dictProp["g2"][i] for i in listParams}
-   table["r"] = { i :dictProp["r"][i] for i in listParams}
-   table["c"] = { i :dictProp["c"][i] for i in listParams}
-   table["mobili"] = { i :dictProp["mobili"][i] for i in listParams}
-   table["fe"] = { i :dictProp["fe"][i] for i in listParams}
-
-   df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
-   st.write(df_section_prop)
-
-   hi = [0, 
-      st.session_state["gapCls"], 
-      st.session_state["gapCls"], 
-      st.session_state["gapCls"]+tbf, 
-      st.session_state["gapCls"]+tbf+tbrf, 
-      st.session_state["gapCls"]+tbf+tbrf+hw, 
-      st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf, 
-      st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf+tbf_inf]
-   
-   hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
-   st.session_state["hi_plot"] = hi_plot
+      # elif tbrf != 0 and rtbf_inf != 0:
+      #    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
 
 
-   Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
+      listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
+      Isection = builtSection(listDict)
+      st.session_state["listDict"] = listDict
 
-   with st.spinner("⏳ Calcolando le verifiche..."):
+      #PARTIRE DA QUI PER CREARE IL MOMENTO STATICO PER IL CALCOLO DELLA FORZA NELLE SALDATURE
+
+      SectionComposite_I = CompositeSection(Isection, clsSection, [b0, b1], n0)
+
+      listParams = ["A", "Ay", "Az", "Iy", "Iz", "It", "Pg", "ay", "az"]
+      dictProp = {}
+      table = {}
+
+      #Fase 1 - Only steel
+      dictProp["g1"] = Isection
+
+      #Fase 2 - G2 - t inf
+      SectionComposite_g2 = CompositeSection(Isection, clsSection, [b0, b1], ninf)
+      dictProp["g2"] = SectionComposite_g2
+
+      #Fase 3 - R - ritiro
+      SectionComposite_r = CompositeSection(Isection, clsSection, [b0, b1], nr)
+      dictProp["r"] = SectionComposite_r 
+
+      #Fase 4 - C - cedimenti
+      SectionComposite_c = CompositeSection(Isection, clsSection, [b0, b1], nc)
+      dictProp["c"] = SectionComposite_c
+
+      #Fase 5 - Qm - mobili
+      SectionComposite_m = CompositeSection(Isection, clsSection, [b0, b1], n0)
+      dictProp["mobili"] = SectionComposite_m
+
+      #Fase 6 - Fessurato
+      clsSection_F = RectangularSection(Bcls, Hcls, [0, 0], material=mat_cls)
+      SectionComposite_f = CompositeSection(Isection, clsSection_F, [b0, b1], 100000000000)
+      dictProp["fe"] = SectionComposite_f
+
+      st.session_state["dictProp"] = dictProp
+
+      # per print table
+      table["g1"] = { i :dictProp["g1"][i] for i in listParams}
+      table["g2"] = { i :dictProp["g2"][i] for i in listParams}
+      table["r"] = { i :dictProp["r"][i] for i in listParams}
+      table["c"] = { i :dictProp["c"][i] for i in listParams}
+      table["mobili"] = { i :dictProp["mobili"][i] for i in listParams}
+      table["fe"] = { i :dictProp["fe"][i] for i in listParams}
+
+      hi = [0, 
+         st.session_state["gapCls"], 
+         st.session_state["gapCls"], 
+         st.session_state["gapCls"]+tbf, 
+         st.session_state["gapCls"]+tbf+tbrf, 
+         st.session_state["gapCls"]+tbf+tbrf+hw, 
+         st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf, 
+         st.session_state["gapCls"]+tbf+tbrf+hw+rtbf_inf+tbf_inf]
+      
+      hi_plot = list(hi) + [hi[-1], hi[0], hi[0]]
+      st.session_state["hi_plot"] = hi_plot
+
+
+      Acls = st.session_state["gapCls"]*st.session_state["input_section"]["0"]["Bcls"]
+
+
 
       tension_plot_plus, list_tension = tension(st.session_state["dictProp"], 
                                                 st.session_state["dict_soll"], 
@@ -329,12 +329,6 @@ if selected3 == "Input":
       #st.write(st.session_state["hi_plot"][0:9])
       # using naive method
       # to convert lists to dictionary
-
-      ## COEFFICIENTI DI SICUREZZA SULLE AZIONI
-      gamma = pd.read_excel('coefficienti.xlsx', "gamma", index_col=0) 
-      psi = pd.read_excel('coefficienti.xlsx', "psi", index_col=0) 
-      st.write(gamma)
-      st.write(psi)
 
       ## TENSIONI COMBINATE
 
@@ -374,6 +368,105 @@ if selected3 == "Input":
       rara_plot_neg = tension_plot(st.session_state["tension_rara"][1], hi_plot_comb)
       freq_plot_neg = tension_plot(st.session_state["tension_frequente"][1], hi_plot_comb)
       qp_plot_neg = tension_plot(st.session_state["tension_qp"][1], hi_plot_comb)
+
+      st.session_state["com_tension"] = {"hi": hi_plot_comb, 
+                                       "slu_pos": slu_plot,
+                                       "rara_pos": rara_plot,
+                                       "freq_pos": freq_plot,
+                                       "qp_pos": qp_plot,
+
+                                       "slu_neg": slu_plot_neg,
+                                       "rara_neg": rara_plot_neg,
+                                       "freq_neg": freq_plot_neg,
+                                       "qp_neg": qp_plot_neg,
+                                       }
+
+      ## CLASSE ANIMA ALLO SLU
+      tp_inf = st.session_state["input_section"]["0"]['tPinf'] + st.session_state["input_section"]["0"]['trPinf']
+      bp_inf = (st.session_state["input_section"]["0"]['tPinf']*st.session_state["input_section"]["0"]['bPinf'] + st.session_state["input_section"]["0"]['trPinf']*st.session_state["input_section"]["0"]['brPinf'])/tp_inf
+      
+      fyk_pinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                        st.session_state["input_section"]["0"]['tPinf'], 
+                        gamma_s = 1.15)["fyk"]
+      fyk_rpinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                        st.session_state["input_section"]["0"]['trPinf'], 
+                        gamma_s = 1.15)["fyk"]
+      fyk_pinf_equ = (fyk_pinf*st.session_state["input_section"]["0"]['tPinf'] + 
+                     fyk_rpinf*st.session_state["input_section"]["0"]['trPinf'])/(tp_inf)
+      
+      
+      cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, fyk_pinf_equ)
+      
+      sigmaClasse = st.session_state["tension_slu"][0][4:6]
+      yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
+
+      fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
+                        st.session_state["input_section"]["0"]['ta'], 
+                        gamma_s = 1.15)["fyk"]
+      #st.write(st.session_state["input_section"]["0"]['ha'])
+      cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+                  st.session_state["input_section"]["0"]['ta'], 
+                  fyk_anima, 
+                  yn, 
+                  sigmaClasse[0], 
+                  sigmaClasse[1])
+      
+      classeAnimaSLU = max(cAnima_slu["result"]["flessione"], cAnima_slu["result"]["compressione"],cAnima_slu["result"]["flessione e compressione"])
+      if classeAnimaSLU == 4:
+         st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
+      else:
+         st.session_state["params_cl4slu"] = None
+      
+      data_classe_slu = {
+      "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
+      "compressione": [ None, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
+      "presso-inflessa": [ None, cAnima_slu["result"]["flessione e compressione"], None],
+      }
+
+      st.session_state["data_classe_slu"] = data_classe_slu
+
+      ## CLASSE ANIMA ALLO SLE
+
+      sigmaClasse = st.session_state["tension_rara"][0][4:6]
+      yn = st.session_state["input_section"]["0"]['ha']*sigmaClasse[0]/(sigmaClasse[1]+sigmaClasse[0])
+      #st.write(yn)
+      cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+                  st.session_state["input_section"]["0"]['ta'], 
+                  fyk_anima, 
+                  yn, 
+                  sigmaClasse[0], 
+                  sigmaClasse[1])
+      
+      classeAnimaSLE = max(cAnima_sle["result"]["flessione"], cAnima_sle["result"]["compressione"],cAnima_sle["result"]["flessione e compressione"])
+      if classeAnimaSLE == 4:
+         st.session_state["params_cl4sle"] = cAnima_sle["detail"][4]
+      else:
+         st.session_state["params_cl4sle"] = None
+      #st.write(cAnima)
+
+      data_classe_sle = {
+         "flessione": [ None, cAnima_sle["result"]["flessione"] , None],
+         "compressione": [ None, cAnima_sle["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
+         "presso-inflessa": [ None, cAnima_sle["result"]["flessione e compressione"], None],
+         }
+      
+      st.session_state["data_classe_sle"] = data_classe_sle
+
+   
+   #PLOT SEZIONE
+   cplot = plotSection_ploty(SectionComposite_I)
+   #plot section in STREAMLIT
+   st.plotly_chart(cplot , use_container_width=True)
+   #cplot.show()
+
+   st.title("Proprietà inerziali della sezione")
+   df_section_prop = pd.DataFrame.from_dict(table, orient = "index").T #.reset_index()
+   st.write(df_section_prop)
+   st.write("parametri calcolo classe Anima:")
+   # parametri classe 4
+   st.write(st.session_state["params_cl4slu"])
+
+
 
 if selected3 == "Tensioni":
    test_keys = ["g1", "g2", "r", "Mf", "Mts", "Mudl", "Mfolla", "T", "C", "V", "totale"]
@@ -449,31 +542,30 @@ if selected3 == "Tensioni":
 
 
    #st.write(hi_plot_comb)
-   #st.write(tension_slu)
 
    st.title("Combinazione positive")
    tab23, tab24, tab25, tab26 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
    with tab23:
-      st.plotly_chart(slu_plot, use_container_width=True, key= "tension_slu")
+      st.plotly_chart(st.session_state["com_tension"]["slu_pos"], use_container_width=True, key= "tension_slu")
    with tab24:
-      st.plotly_chart(rara_plot, use_container_width=True, key= "tension_rara")
+      st.plotly_chart(st.session_state["com_tension"]["rara_pos"], use_container_width=True, key= "tension_rara")
    with tab25:
-      st.plotly_chart(freq_plot, use_container_width=True, key= "tension_frequente")
+      st.plotly_chart(st.session_state["com_tension"]["freq_pos"], use_container_width=True, key= "tension_frequente")
    with tab26:
-      st.plotly_chart(qp_plot, use_container_width=True, key= "tension_qp")
+      st.plotly_chart(st.session_state["com_tension"]["qp_pos"], use_container_width=True, key= "tension_qp")
 
    st.title("Combinazione negative")
    tab27, tab28, tab29, tab30 = st.tabs(["slu", "rara", "frequente", "quasi permanente"])
 
    with tab27:
-      st.plotly_chart(slu_plot_neg, use_container_width=True, key= "tension_slu_neg")
+      st.plotly_chart(st.session_state["com_tension"]["slu_neg"], use_container_width=True, key= "tension_slu_neg")
    with tab28:
-      st.plotly_chart(rara_plot_neg, use_container_width=True, key= "tension_rara_neg")
+      st.plotly_chart(st.session_state["com_tension"]["rara_neg"], use_container_width=True, key= "tension_rara_neg")
    with tab29:
-      st.plotly_chart(freq_plot_neg, use_container_width=True, key= "tension_frequente_neg")
+      st.plotly_chart(st.session_state["com_tension"]["freq_neg"], use_container_width=True, key= "tension_frequente_neg")
    with tab30:
-      st.plotly_chart(qp_plot_neg, use_container_width=True, key= "tension_qp_neg")
+      st.plotly_chart(st.session_state["com_tension"]["qp_neg"], use_container_width=True, key= "tension_qp_neg")
 
    
 
@@ -489,90 +581,27 @@ if selected3 == "Verifiche":
    st.markdown("""   
                ##### 1) Calcolo della classe sezionale
                """)
-   
-   st.write("Calcolo della classe allo SLU")
-
-   tp_inf = st.session_state["input_section"]["0"]['tPinf'] + st.session_state["input_section"]["0"]['trPinf']
-   bp_inf = (st.session_state["input_section"]["0"]['tPinf']*st.session_state["input_section"]["0"]['bPinf'] + st.session_state["input_section"]["0"]['trPinf']*st.session_state["input_section"]["0"]['brPinf'])/tp_inf
-   
-   fyk_pinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
-                     st.session_state["input_section"]["0"]['tPinf'], 
-                     gamma_s = 1.15)["fyk"]
-   fyk_rpinf = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
-                     st.session_state["input_section"]["0"]['trPinf'], 
-                     gamma_s = 1.15)["fyk"]
-   fyk_pinf_equ = (fyk_pinf*st.session_state["input_section"]["0"]['tPinf'] + 
-                  fyk_rpinf*st.session_state["input_section"]["0"]['trPinf'])/(tp_inf)
-   
-   
-   cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, fyk_pinf_equ)
-   
-   sigmaClasse = st.session_state["tension_slu"][0][4:6]
-   yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
-
-   fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
-                     st.session_state["input_section"]["0"]['ta'], 
-                     gamma_s = 1.15)["fyk"]
-   #st.write(st.session_state["input_section"]["0"]['ha'])
-   cAnima_slu = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
-               st.session_state["input_section"]["0"]['ta'], 
-               fyk_anima, 
-               yn, 
-               sigmaClasse[0], 
-               sigmaClasse[1])
-   
-   classeAnimaSLU = max(cAnima_slu["result"]["flessione"], cAnima_slu["result"]["compressione"],cAnima_slu["result"]["flessione e compressione"])
-   if classeAnimaSLU == 4:
-      st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
-   else:
-      st.session_state["params_cl4slu"] = None
-
-
-
-   data_classe = {
-      "flessione": [ None, cAnima_slu["result"]["flessione"] , None],
-      "compressione": [ None, cAnima_slu["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
-      "presso-inflessa": [ None, cAnima_slu["result"]["flessione e compressione"], None],
-      }
+   st.write("parametri classe allo SLU")
 
    # Creiamo un DataFrame con i dati
-   df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
+   df_classe = pd.DataFrame(st.session_state["data_classe_slu"], index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
-   st.table(df_classe)
+   st.table(st.session_state["data_classe_slu"])
    st.write("parametri classe 4")
-   st.write(cAnima_slu["detail"][4])
+   st.write(st.session_state["params_cl4slu"])
 
 
-   st.write("Calcolo della classe allo SLE (rara)")
-   sigmaClasse = st.session_state["tension_rara"][0][4:6]
-   yn = st.session_state["input_section"]["0"]['ha']*sigmaClasse[0]/(sigmaClasse[1]+sigmaClasse[0])
-   #st.write(yn)
-   cAnima_sle = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
-               st.session_state["input_section"]["0"]['ta'], 
-               fyk_anima, 
-               yn, 
-               sigmaClasse[0], 
-               sigmaClasse[1])
-   
-   classeAnimaSLE = max(cAnima_sle["result"]["flessione"], cAnima_sle["result"]["compressione"],cAnima_sle["result"]["flessione e compressione"])
-   if classeAnimaSLE == 4:
-      st.session_state["params_cl4sle"] = cAnima_sle["detail"][4]
-   else:
-      st.session_state["params_cl4sle"] = None
-   #st.write(cAnima)
-
-   data_classe = {
-      "flessione": [ None, cAnima_sle["result"]["flessione"] , None],
-      "compressione": [ None, cAnima_sle["result"]["compressione"], cPiattandaInf["result"]["compressione"]],
-      "presso-inflessa": [ None, cAnima_sle["result"]["flessione e compressione"], None],
-      }
+   st.write("parametri classe allo SLE (rara)")
 
    # Creiamo un DataFrame con i dati
-   df_classe = pd.DataFrame(data_classe, index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
+   df_classe = pd.DataFrame(st.session_state["data_classe_sle"], index = ["piattabanda superiore", "anima", "piattabanda inferiore"])
    # Mostriamo la tabella
-   st.table(df_classe)
+   st.table(st.session_state["data_classe_sle"])
    st.write("parametri classe 4")
-   st.write(cAnima_sle["detail"][4])
+   st.write(st.session_state["params_cl4sle"])
+
+
+   st.write("parametri classe allo SLE (rara)")
 
 
    

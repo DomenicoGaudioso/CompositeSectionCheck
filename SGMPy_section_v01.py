@@ -592,7 +592,6 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
     #print("Momento d'inerzia rispetto all'asse y", elasticProp["Iz"])
     
 
-    st.write(cl4Dict)
     if cl4Dict != None: ## CALCOLO PROPRIETA' per CLASSE 4 DELLA SEZIONE
         ##WIP
         #print("ciao")
@@ -624,8 +623,6 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
         
         elasticProp["sec_point"]= (elasticProp["sec_point"], coordinates)
         #st.write(elasticProp)
-    else:
-        st.write("qualcosa non cosa")
 
     return elasticProp 
 
