@@ -221,7 +221,7 @@ if selected3 == "Input":
       rPlateSup = OrizontalPlate(bf_r, tbrf, [0, gapCls+tbf], material=mat_steel)
       
       try:
-         cl4Dict = st.session_state["params_cl4slu"]
+         cl4Dict = st.session_state["params_cl4slu"][0]
       except:
          cl4Dict = None
       
@@ -398,6 +398,8 @@ if selected3 == "Input":
       cPiattandaInf = ClassePiattabanda(bp_inf/2, tp_inf, fyk_pinf_equ)
       
       sigmaClasse = st.session_state["tension_slu"][0][4:6]
+      sigmaClasseNeg = st.session_state["tension_slu"][1][4:6]
+
       yn = st.session_state["input_section"]["0"]['ha']/(1+sigmaClasse[1]/sigmaClasse[0])
 
       fyk_anima = steel_ntc18(st.session_state["input_section"]["0"]['mat_steel'], 
@@ -411,9 +413,18 @@ if selected3 == "Input":
                   sigmaClasse[0], 
                   sigmaClasse[1])
       
+      cAnima_slu_neg = ClasseAnima(st.session_state["input_section"]["0"]['ha'], 
+            st.session_state["input_section"]["0"]['ta'], 
+            fyk_anima, 
+            yn, 
+            sigmaClasseNeg[0], 
+            sigmaClasseNeg[1])
+      
+
+      
       classeAnimaSLU = max(cAnima_slu["result"]["flessione"], cAnima_slu["result"]["compressione"],cAnima_slu["result"]["flessione e compressione"])
       if classeAnimaSLU == 4:
-         st.session_state["params_cl4slu"] = cAnima_slu["detail"][4]
+         st.session_state["params_cl4slu"] = [cAnima_slu["detail"][4], cAnima_slu_neg["detail"][4]]
       else:
          st.session_state["params_cl4slu"] = None
       
