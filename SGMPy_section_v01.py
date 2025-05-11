@@ -698,6 +698,26 @@ def Classe3Anima(d, t, fyk, yn, sigma1, sigma2):
     
     return classe_3
 
+
+def ksig(psi):
+    if psi == 1.00:
+        ks = 4.0
+    elif 1 > psi > 0:
+        ks = 8.2 / (1.05 + psi)
+    elif psi == 0:
+        ks = 7.81
+    elif 0 > psi > -1:
+        ks = 7.81 - 6.29 * psi + 9.78 * psi**2
+    elif psi == -1:
+        ks = 23.9
+    elif -1 > psi > -3:
+        ks = 5.98 * (1 - psi)**2
+    else:
+        print("WARNING: risulta fuori dalle condizioni impostate")
+        ks = 5.98 * (1 - psi)**2  # oppure puoi scegliere di lanciare un'eccezione
+    return ks
+    
+
 def Classe4Anima(d, t, fyk, yn, sigma1, sigma2):
     eps = np.sqrt(235/fyk)
     a = d/t
@@ -711,8 +731,10 @@ def Classe4Anima(d, t, fyk, yn, sigma1, sigma2):
     psi = round(sigma2/sigma1,3)
     #print(sigma1, sigma2, "psi", psi)
     # CALCOLO COEFFICIENTE DI IMBOZZAMENTO
-    ksigma = 4.0 if  psi == 1.00 else 8.2/(1.05+psi) if 1> psi >0 else 7.81 if psi == 0 else 7.81-6.29*psi + 9.78*psi**2 if 0> psi >-1 else 23.9 if psi == -1 else 5.98*(1-psi)**2 if -1> psi >-3 else print("WARNING: risulta fuori dalle condizioni impostate") 
+    ksigma = ksig(psi)
     # CALCOLO SNELLEZZA DEL PANNELLO
+    print(psi)
+    print(ksigma)
     lamP = (a)/(28.4*eps*np.sqrt(ksigma))
     # CALCOLO FATTORE DI RIDUZIONE PER PANNELLI IRRIGIDITI DA ENTRAMBI I LATI
     rid = 1 if lamP <= 0.673 else (lamP-0.055*(3+psi))/lamP**2 if lamP > 0.673 else print("WARNING: risulta fuori dalle condizioni impostate")

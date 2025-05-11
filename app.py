@@ -100,29 +100,29 @@ if selected3 == "Input":
                         'tPsup': [20], #spessore piattabanda superiore
                         "brPsup": [0], # larghezza raddoppio piattabanda superiore
                         'trPsup': [0], #spessore raddoppio piattabanda superiore
-                        "ha": [360], #altezza anima
-                        "ta": [12], #spessore anima
+                        "ha": [460], #altezza anima
+                        "ta": [10], #spessore anima
                         "brPinf": [0], #larghezza raddoppio piattabanda inferiore
                         'trPinf': [0], #spessore raddoppio piattabanda inferiore
-                        "bPinf": [300], #larghezza piattabanda inferiore
+                        "bPinf": [250], #larghezza piattabanda inferiore
                         'tPinf': [20], #spessore piattabanda inferiore
 
-                        "hcls": [204],
-                        "h_predalle": [6],
+                        "hcls": [210],
+                        "h_predalle": [50],
                         "Bcls": [1500],
 
-                        "phi_sup": [20], 
-                        "int_sup": [400],
-                        "phi_inf": [1], 
-                        "int_inf": [500],
+                        "phi_sup": [24], 
+                        "int_sup": [200],
+                        "phi_inf": [24], 
+                        "int_inf": [200],
 
-                        "n_inf": [14.64], 
+                        "n_inf": [15.2], 
                         "n_0": [6.16],
-                        "n_r": [14.06], 
-                        "n_c": [17.73],
+                        "n_r": [14.6], 
+                        "n_c": [18.6],
 
-                        "c_sup": [58], 
-                        "c_inf": [40],
+                        "c_sup": [59], 
+                        "c_inf": [28],
 
                         "mat_cls": ["C35/45"],
                         "mat_steel": ["S355"],
@@ -205,7 +205,7 @@ if selected3 == "Input":
       #armature inferiori
       nbar_inf = int(Bcls/int_inf)
       delta_xinf = (Bcls - (nbar_inf-1)*int_inf)/2
-      pointG1 = [[-(Bcls*0.5 - delta_xinf) + int_inf*i, Hcls-c_inf-hpredall] for i in range(0, nbar_inf)]
+      pointG1 = [[-(Bcls*0.5 - delta_xinf) + int_inf*i, Hcls-c_inf] for i in range(0, nbar_inf)]
       b0 = renforcementBar(phi_sup, pointG0)
       b1 = renforcementBar(phi_inf, pointG1)
       st.session_state["clsSection"] = clsSection
