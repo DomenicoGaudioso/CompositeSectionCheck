@@ -96,20 +96,24 @@ if selected3 == "Input":
    except:
       input_section = { 'l': [12*1000], #lunghezza del concio
                      
-                        "bPsup": [250], #larghezza piattabanda superiore
-                        'tPsup': [20], #spessore piattabanda superiore
+                        "bPsup": [1150], #larghezza piattabanda superiore
+                        'tPsup': [40], #spessore piattabanda superiore
                         "brPsup": [0], # larghezza raddoppio piattabanda superiore
                         'trPsup': [0], #spessore raddoppio piattabanda superiore
-                        "ha": [460], #altezza anima
-                        "ta": [10], #spessore anima
+                        "ha": [1460], #altezza anima
+                        "ta": [15], #spessore anima esterna
+                        "intaest": [1000], #interasse anime esterne
+                        "intaint": [200], #interasse anime interne
+                        "naint": [5], #numero di anime interne
+                        "taint": [10], #spessore anima interna
                         "brPinf": [0], #larghezza raddoppio piattabanda inferiore
                         'trPinf': [0], #spessore raddoppio piattabanda inferiore
-                        "bPinf": [250], #larghezza piattabanda inferiore
-                        'tPinf': [20], #spessore piattabanda inferiore
+                        "bPinf": [1150], #larghezza piattabanda inferiore
+                        'tPinf': [40], #spessore piattabanda inferiore
 
                         "hcls": [210],
                         "h_predalle": [50],
-                        "Bcls": [1500],
+                        "Bcls": [2500],
 
                         "phi_sup": [24], 
                         "int_sup": [200],
@@ -169,6 +173,11 @@ if selected3 == "Input":
       phi_inf = float(edited_df_sec.loc['phi_inf'][0])
       int_inf = float(edited_df_sec.loc['int_inf'][0])
 
+      int_anima_est = float(edited_df_sec.loc["intaest"][0])  
+      int_anima_int = float(edited_df_sec.loc["intaint"][0])
+      n_anima_int = float(edited_df_sec.loc["naint"][0])  
+      tw_int = float(edited_df_sec.loc["taint"][0])                   
+
       bf = float(edited_df_sec.loc['bPsup'][0])
       tbf = float(edited_df_sec.loc['tPsup'][0])
 
@@ -225,7 +234,10 @@ if selected3 == "Input":
       except:
          cl4Dict = None
       
-      wPlate1 = WebPlate(hw, tw, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+
+      wPlate1 = WebPlate(hw, tw, [int_anima_est/2, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+      wPlate2 = WebPlate(hw, tw, [-int_anima_est/2, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+
       
       rPlateInf = OrizontalPlate(rbf_inf, rtbf_inf, [0, gapCls+tbf+tbrf+hw], material=mat_steel)
       PlateInf = OrizontalPlate(binf, tbf_inf, [0, (gapCls+tbf+tbrf+hw+rtbf_inf)], material=mat_steel)
@@ -233,7 +245,17 @@ if selected3 == "Input":
       st.session_state["gapCls"] = gapCls
       st.session_state["PlateSup"] = PlateSup
       st.session_state["rPlateSup"] = rPlateSup
+      #ANIME ESTERNE
       st.session_state["wPlate1"] = wPlate1
+      st.session_state["wPlate2"] = wPlate2
+      #ANIME INTERNE
+      wPlate_int = []
+      for i in n_anima_int:
+         wPlate_i = WebPlate(hw, tw, [-int_anima_est/2, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+         wPlate_int.append(wPlate_i)
+
+      st.session_state["wPlate_int"] = wPlate_int
+
       st.session_state["rPlateInf"] = rPlateInf
       st.session_state["PlateInf"] = PlateInf
 
@@ -253,7 +275,7 @@ if selected3 == "Input":
       #    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
 
 
-      listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
+      listDict = [PlateSup,rPlateSup, wPlate1, wPlate2, rPlateInf, PlateInf]
       Isection = builtSection(listDict)
       st.session_state["listDict"] = listDict
 

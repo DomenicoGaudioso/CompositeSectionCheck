@@ -596,12 +596,16 @@ def WebPlate(H, t, trasl, alpha, material="S235", cl4Dict=None): ##PIATTO D'ANIM
         ##WIP
         #print("ciao")
         #st.write(cl4Dict)
-        if cl4Dict["bc"]<0:
-            h1 = - trasl[1]-cl4Dict["be1"] 
-            h2 = - trasl[1] -cl4Dict["be1"] - cl4Dict["delta"]
-        elif cl4Dict["bc"]>0:
-            h1 = - trasl[1] -H + cl4Dict["be1"] + cl4Dict["delta"]
-            h2 = - trasl[1] -H + cl4Dict["be1"]
+        try:
+            if cl4Dict["bc"]<0:
+                h1 = - trasl[1]-cl4Dict["be1"] 
+                h2 = - trasl[1] -cl4Dict["be1"] - cl4Dict["delta"]
+            elif cl4Dict["bc"]>0:
+                h1 = - trasl[1] -H + cl4Dict["be1"] + cl4Dict["delta"]
+                h2 = - trasl[1] -H + cl4Dict["be1"]
+        except: #vuol dire che bc = None
+                h1 = - trasl[1]-cl4Dict["be1"] 
+                h2 = - trasl[1] -H +cl4Dict["be2"]
 
         X = [-t/2+trasl[0], -t/2+trasl[0], t/2+trasl[0], t/2+trasl[0]]
         Y = [h1, h2, h2, h1]
