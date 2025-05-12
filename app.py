@@ -250,9 +250,31 @@ if selected3 == "Input":
       st.session_state["wPlate2"] = wPlate2
       #ANIME INTERNE
       wPlate_int = []
-      for i in n_anima_int:
-         wPlate_i = WebPlate(hw, tw, [-int_anima_est/2, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+      
+      if int(n_anima_int) % 2 == 0:
+         print(int(n_anima_int), "è un numero pari.")
+         d_start = int_anima_int/2
+         for i in range(0, int(n_anima_int/2)):
+            di = d_start + int_anima_int*i
+            wPlate_i = WebPlate(hw, tw_int, [-di, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+            wPlate_int.append(wPlate_i)
+            wPlate_i = WebPlate(hw, tw_int, [di, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+            wPlate_int.append(wPlate_i)
+         
+      else:
+         print(int(n_anima_int), "è un numero dispari.")
+         wPlate_i = WebPlate(hw, tw_int, [0, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
          wPlate_int.append(wPlate_i)
+
+         d_start = int_anima_int
+         for i in range(0, int(n_anima_int/2)):
+            di = d_start + int_anima_int*i
+            wPlate_i = WebPlate(hw, tw_int, [-di, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+            wPlate_int.append(wPlate_i)
+            wPlate_i = WebPlate(hw, tw_int, [di, gapCls+tbf+tbrf], 0, material=mat_steel, cl4Dict=cl4Dict)
+            wPlate_int.append(wPlate_i)
+
+
 
       st.session_state["wPlate_int"] = wPlate_int
 
@@ -275,7 +297,7 @@ if selected3 == "Input":
       #    listDict = [PlateSup,rPlateSup, wPlate1, rPlateInf, PlateInf]
 
 
-      listDict = [PlateSup,rPlateSup, wPlate1, wPlate2, rPlateInf, PlateInf]
+      listDict = [PlateSup,rPlateSup, wPlate1, wPlate2, *wPlate_int, rPlateInf, PlateInf]
       Isection = builtSection(listDict)
       st.session_state["listDict"] = listDict
 
